@@ -3,118 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sunny 的日語全攻略 - 50音加強版</title>
+    <title>Sunny 的日語終極攻略</title>
     <style>
-        body { font-family: sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
-        .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; }
-        .tabs { display: flex; background: #ffe4e6; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #d63384; font-weight: bold; }
+        body { font-family: sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; color: #333; }
+        .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .tabs { display: flex; background: #ffe4e6; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .tab { padding: 15px 15px; text-align: center; cursor: pointer; color: #d63384; font-weight: bold; flex: 1; min-width: 70px; font-size: 0.9rem; }
         .tab.active { background: #d63384; color: white; }
         .content { flex: 1; overflow-y: auto; padding: 15px; display: none; }
         .content.active { display: block; }
+        .section-title { font-weight: bold; color: #d63384; margin: 15px 0 8px 0; border-left: 5px solid #d63384; padding-left: 10px; font-size: 1rem; background: #fff0f3; padding-top: 5px; padding-bottom: 5px; }
         .list-card { background: white; border-radius: 10px; padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .jp-text { font-size: 1.2rem; font-weight: bold; color: #333; }
-        .zh-text { color: #d63384; font-weight: 500; text-align: right; }
-        .section-title { font-weight: bold; color: #d63384; margin: 15px 0 8px 5px; border-left: 4px solid #d63384; padding-left: 10px; }
-        .quiz-card { background: white; padding: 25px 20px; border-radius: 20px; text-align: center; margin: 10px auto; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        button.opt { padding: 15px; border: 1px solid #fbcfe8; background: white; border-radius: 12px; color: #d63384; font-weight: bold; }
-        .next-btn { background: #d63384; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-weight: bold; border:none; }
+        .jp-text { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .zh-text { color: #d63384; font-weight: 500; font-size: 0.85rem; text-align: right; max-width: 60%; }
+        .quiz-card { background: white; padding: 25px 20px; border-radius: 25px; text-align: center; margin: 10px auto; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .options { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+        button.opt { padding: 15px; border: 1px solid #fbcfe8; background: white; border-radius: 12px; color: #d63384; font-weight: bold; text-align: left; }
+        .next-btn { background: #d63384; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 12px; display: none; font-weight: bold; border:none; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="header">日語 50 音與全課目練習</div>
+    <div class="header">日語 50 音與課文全攻略</div>
     <div class="tabs">
-        <div id="t1" class="tab active" onclick="sw('l')">📖 瀏覽清單</div>
-        <div id="t2" class="tab" onclick="sw('q')">📝 隨機測驗</div>
+        <div id="t-kana" class="tab active" onclick="sw('kana')">50音</div>
+        <div id="t-word" class="tab" onclick="sw('word')">單字</div>
+        <div id="t-sent" class="tab" onclick="sw('sent')">句子</div>
+        <div id="t-quiz" class="tab" onclick="sw('quiz')">測驗</div>
     </div>
     
-    <div id="c1" class="content active">
-        <div id="gojuon-list"></div>
-        <div id="word-list"></div>
-    </div>
-
-    <div id="c2" class="content">
+    <div id="c-kana" class="content active"></div>
+    <div id="c-word" class="content"></div>
+    <div id="c-sent" class="content"></div>
+    <div id="c-quiz" class="content">
         <div class="quiz-card">
-            <div id="q" style="font-size:2.5rem; font-weight:bold; cursor:pointer; color:#333;" onclick="speak(document.getElementById('q').innerText)">🔊 點我讀音</div>
+            <div id="q-box" style="font-size:2rem; font-weight:bold; cursor:pointer; color:#333; margin-bottom:10px;" onclick="speak(this.innerText)">🔊 點我發音</div>
             <div id="opts" class="options"></div>
-            <div id="res" style="margin-top:15px; font-weight:bold; font-size:1.2rem;"></div>
+            <div id="res" style="margin-top:15px; font-weight:bold; font-size:1.1rem;"></div>
             <button id="nxt" class="next-btn" onclick="nextQ()">下一題 ❯</button>
         </div>
     </div>
 
     <script>
-        const gojuon = [
-            {j:"あ", z:"a"}, {j:"い", z:"i"}, {j:"う", z:"u"}, {j:"え", z:"e"}, {j:"お", z:"o"},
-            {j:"か", z:"ka"}, {j:"き", z:"ki"}, {j:"く", z:"ku"}, {j:"け", z:"ke"}, {j:"こ", z:"ko"},
-            {j:"さ", z:"sa"}, {j:"し", z:"shi"}, {j:"す", z:"su"}, {j:"せ", z:"se"}, {j:"そ", z:"so"},
-            {j:"た", z:"ta"}, {j:"ち", z:"chi"}, {j:"つ", z:"tsu"}, {j:"て", z:"te"}, {j:"と", z:"to"},
-            {j:"な", z:"na"}, {j:"に", z:"ni"}, {j:"ぬ", z:"nu"}, {j:"ね", z:"ne"}, {j:"の", z:"no"},
-            {j:"は", z:"ha"}, {j:"ひ", z:"hi"}, {j:"ふ", z:"fu"}, {j:"へ", z:"he"}, {j:"ほ", z:"ho"},
-            {j:"ま", z:"ma"}, {j:"み", z:"mi"}, {j:"む", z:"mu"}, {j:"め", z:"me"}, {j:"も", z:"mo"},
-            {j:"や", z:"ya"}, {j:"ゆ", z:"yu"}, {j:"よ", z:"yo"},
-            {j:"ら", z:"ra"}, {j:"り", z:"ri"}, {j:"る", z:"ru"}, {j:"れ", z:"re"}, {j:"ろ", z:"ro"},
-            {j:"わ", z:"wa"}, {j:"を", z:"wo"}, {j:"ん", z:"n"}
+        const kanaData = [
+            {t:"清音", items:[{j:"あ",z:"a"},{j:"い",z:"i"},{j:"う",z:"u"},{j:"え",z:"e"},{j:"お",z:"o"},{j:"か",z:"ka"},{j:"き",z:"ki"},{j:"く",z:"ku"},{j:"け",z:"ke"},{j:"こ",z:"ko"},{j:"さ",z:"sa"},{j:"し",z:"shi"},{j:"す",z:"su"},{j:"せ",z:"se"},{j:"そ",z:"so"},{j:"た",z:"ta"},{j:"ち",z:"chi"},{j:"つ",z:"tsu"},{j:"て",z:"te"},{j:"と",z:"to"},{j:"な",z:"na"},{j:"に",z:"ni"},{j:"ぬ",z:"nu"},{j:"ね",z:"ne"},{j:"の",z:"no"},{j:"は",z:"ha"},{j:"ひ",z:"hi"},{j:"ふ",z:"fu"},{j:"へ",z:"he"},{j:"ほ",z:"ho"},{j:"ま",z:"ma"},{j:"み",z:"mi"},{j:"む",z:"mu"},{j:"め",z:"me"},{j:"も",z:"mo"},{j:"や",z:"ya"},{j:"ゆ",z:"yu"},{j:"よ",z:"yo"},{j:"ら",z:"ra"},{j:"り",z:"ri"},{j:"る",z:"ru"},{j:"れ",z:"re"},{j:"ろ",z:"ro"},{j:"わ",z:"wa"},{j:"を",z:"wo"},{j:"ん",z:"n"}]},
+            {t:"濁音/半濁音", items:[{j:"が",z:"ga"},{j:"ぎ",z:"gi"},{j:"ぐ",z:"gu"},{j:"げ",z:"ge"},{j:"ご",z:"go"},{j:"ざ",z:"za"},{j:"じ",z:"ji"},{j:"ず",z:"zu"},{j:"ぜ",z:"ze"},{j:"ぞ",z:"zo"},{j:"だ",z:"da"},{j:"ぢ",z:"ji"},{j:"づ",z:"zu"},{j:"で",z:"de"},{j:"ど",z:"do"},{j:"ば",z:"ba"},{j:"び",z:"bi"},{j:"ぶ",z:"bu"},{j:"べ",z:"be"},{j:"ぼ",z:"bo"},{j:"ぱ",z:"pa"},{j:"ぴ",z:"pi"},{j:"ぷ",z:"pu"},{j:"ぺ",z:"pe"},{j:"ぽ",z:"po"}]},
+            {t:"拗音 (例)", items:[{j:"きゃ",z:"kya"},{j:"きゅ",z:"kyu"},{j:"きょ",z:"kyo"},{j:"しゃ",z:"sha"},{j:"しゅ",z:"shu"},{j:"しょ",z:"sho"},{j:"ちゃ",z:"cha"},{j:"ちゅ",z:"chu"},{j:"ちょ",z:"cho"},{j:"にゃ",z:"nya"},{j:"ひゃ",z:"hya"},{j:"みゃ",z:"mya"},{j:"りゃ",z:"rya"}]}
         ];
 
-        const words = [
-            {j:"いえ", z:"家"}, {j:"えき", z:"車站"}, {j:"かき", z:"柿子"}, {j:"なし", z:"梨子"}, 
-            {j:"さかな", z:"魚"}, {j:"いぬ", z:"狗"}, {j:"ねこ", z:"貓"}, {j:"はな", z:"花"},
-            {j:"スマホ", z:"手機"}, {j:"コンビニ", z:"便利商店"}, {j:"トイレ", z:"洗手間"},
-            {j:"いくらですか", z:"多少錢？"}, {j:"ありがとうございます", z:"謝謝"},
-            {j:"はじめまして", z:"初次見面"}
+        const wordData = [
+            {t:"50音代表單字", items:[{j:"いえ",z:"家"},{j:"えき",z:"車站"},{j:"かき",z:"柿子"},{j:"あき",z:"秋天"},{j:"いけ",z:"池塘"},{j:"こい",z:"鯉魚"},{j:"いぬ",z:"狗"},{j:"ねco",z:"貓"},{j:"はな",z:"花"}]},
+            {t:"第8-10課 (外來語)", items:[{j:"スマホ",z:"手機"},{j:"タクシー",z:"計程車"},{j:"デパート",z:"百貨公司"},{j:"トイレ",z:"洗手間"},{j:"アイスクリーム",z:"冰淇淋"},{j:"ケーキ",z:"蛋糕"},{j:"コーヒー",z:"咖啡"},{j:"コンビニ",z:"便利商店"},{j:"カメラ",z:"相機"}]},
+            {t:"第11-13課 (發音/地名)", items:[{j:"しんぶん",z:"報紙"},{j:"ぎんこう",z:"銀行"},{j:"おんせん",z:"溫泉"},{j:"がくせい",z:"學生"},{j:"せんせい",z:"老師"},{j:"がっこう",z:"學校 (促音)"},{j:"きって",z:"郵票 (促音)"},{j:"きっぷ",z:"車票 (促音)"},{j:"台湾",z:"台灣"},{j:"ニューヨーク",z:"紐約"}]}
         ];
 
-        const allData = [...gojuon, ...words];
+        const sentData = [
+            {t:"常用對話", items:[{j:"はじめまして、ダイアナです。",z:"初次見面，我是戴安娜。"},{j:"どうぞ よろしくお願いします。",z:"請多指教。"},{j:"すみません。これをください。",z:"對不起，請給我這個。"},{j:"いくらですか。",z:"多少錢呢？"},{j:"全部で いくらですか。",z:"總共多少錢呢？"},{j:"かしこまりました。",z:"我知道了/遵命。"}]}
+        ];
 
+        let quizPool = [];
         function speak(t) {
-            const u = new SpeechSynthesisUtterance(t);
+            const u = new SpeechSynthesisUtterance(t.replace('🔊 ',''));
             u.lang = 'ja-JP'; u.rate = 0.8; window.speechSynthesis.speak(u);
         }
 
-        // 生成 50 音清單
-        const gDiv = document.getElementById('gojuon-list');
-        gDiv.innerHTML = '<div class="section-title">基礎 50 音 (平假名)</div>';
-        gojuon.forEach(item => {
-            const d = document.createElement('div'); d.className = 'list-card';
-            d.onclick = () => speak(item.j);
-            d.innerHTML = `<div><span style="margin-right:8px;">🔊</span><span class="jp-text">${item.j}</span></div><span class="zh-text">${item.z}</span>`;
-            gDiv.appendChild(d);
-        });
+        function buildList(arr, containerId) {
+            const c = document.getElementById(containerId);
+            arr.forEach(sec => {
+                const title = document.createElement('div'); title.className='section-title'; title.innerText=sec.t; c.appendChild(title);
+                sec.items.forEach(i => {
+                    quizPool.push(i);
+                    const d = document.createElement('div'); d.className='list-card'; d.onclick=()=>speak(i.j);
+                    d.innerHTML = `<div><span>🔊</span> <span class="jp-text">${i.j}</span></div><span class="zh-text">${i.z}</span>`;
+                    c.appendChild(d);
+                });
+            });
+        }
 
-        // 生成單字句子清單
-        const wDiv = document.getElementById('word-list');
-        wDiv.innerHTML = '<div class="section-title">課文單字與句子</div>';
-        words.forEach(item => {
-            const d = document.createElement('div'); d.className = 'list-card';
-            d.onclick = () => speak(item.j);
-            d.innerHTML = `<div><span style="margin-right:8px;">🔊</span><span class="jp-text">${item.j}</span></div><span class="zh-text">${item.z}</span>`;
-            wDiv.appendChild(d);
-        });
+        buildList(kanaData, 'c-kana'); buildList(wordData, 'c-word'); buildList(sentData, 'c-sent');
 
-        function sw(m){
-            document.getElementById('t1').className = m=='l'?'tab active':'tab';
-            document.getElementById('t2').className = m=='q'?'tab active':'tab';
-            document.getElementById('c1').className = m=='l'?'content active':'content';
-            document.getElementById('c2').className = m=='q'?'content active':'content';
-            if(m=='q') nextQ();
+        function sw(mode){
+            ['kana','word','sent','quiz'].forEach(m => {
+                document.getElementById('t-'+m).className = m===mode?'tab active':'tab';
+                document.getElementById('c-'+m).className = m===mode?'content active':'content';
+            });
+            if(mode==='quiz') nextQ();
         }
 
         function nextQ(){
-            const item = allData[Math.floor(Math.random()*allData.length)];
-            document.getElementById('q').innerText = item.j;
+            const item = quizPool[Math.floor(Math.random()*quizPool.length)];
+            document.getElementById('q-box').innerText = '🔊 ' + item.j;
             speak(item.j);
             const box = document.getElementById('opts'); box.innerHTML = "";
-            document.getElementById('res').innerText = "";
-            document.getElementById('nxt').style.display = "none";
+            document.getElementById('res').innerText = ""; document.getElementById('nxt').style.display = "none";
             let choices = [item.z];
             while(choices.length < 4) {
-                let r = allData[Math.floor(Math.random()*allData.length)].z;
+                let r = quizPool[Math.floor(Math.random()*quizPool.length)].z;
                 if(!choices.includes(r)) choices.push(r);
             }
             choices.sort(()=>Math.random()-0.5).forEach(o => {
-                const btn = document.createElement('button');
-                btn.className = "opt"; btn.innerText = o;
+                const btn = document.createElement('button'); btn.className = "opt"; btn.innerText = o;
                 btn.onclick = () => {
                     const r = document.getElementById('res');
                     if(o==item.z){ r.innerText="⭕ 正確！"; r.style.color="green"; }
