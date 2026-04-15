@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sunny 日文學習小站</title>
   <style>
-    /* 這裡保留妳原本漂亮的粉紅 CSS 樣式 */
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "PingFang TC", "Noto Sans TC", sans-serif; background: linear-gradient(180deg, #fff7fb 0%, #fff1f6 100%); color: #4a3b44; }
     .app { max-width: 960px; margin: 0 auto; padding: 16px; }
@@ -25,7 +24,7 @@
     .card { background: white; border-radius: 18px; padding: 14px; box-shadow: 0 6px 16px rgba(0,0,0,0.05); border: 1px solid #ffe1ed; }
     .jp { font-size: 1.15rem; font-weight: 800; color: #5d3b4e; margin-bottom: 6px; }
     .zh { color: #d94a8c; font-weight: 700; margin-bottom: 8px; }
-    .sub { color: #8a6b7a; font-size: 0.9rem; }
+    .sub { color: #8a6b7a; font-size: 0.9rem; line-height: 1.7; }
     .speak { margin-top: 10px; background: #fff0f7; color: #c63f7d; border: none; padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: 700; }
     .quiz-box { text-align: center; }
     .quiz-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 10px; color: #8a6b7a; font-weight: 700; font-size: 0.95rem; }
@@ -40,7 +39,7 @@
     .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
     .btn { background: #ff78b0; color: white; box-shadow: 0 6px 16px rgba(255,120,176,0.25); border:none; }
     .btn.secondary { background: #ffe4ef; color: #c63f7d; box-shadow: none; border:none; }
-    .wrong-item { background: #fff8fb; border: 1px solid #ffd8e8; border-radius: 16px; padding: 12px; margin-bottom: 8px; font-size: 0.9rem; }
+    .wrong-item { background: #fff8fb; border: 1px solid #ffd8e8; border-radius: 16px; padding: 12px; margin-bottom: 8px; font-size: 0.9rem; line-height: 1.7; }
     @media (min-width: 700px) { .options { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
@@ -48,16 +47,16 @@
   <div class="app">
     <div class="header">
       <h1>🌸 Sunny 日文學習小站</h1>
-      <p>Sunny 專屬 114 年度課本補完版</p>
+      <p>Sunny 專屬課本整理版</p>
     </div>
 
     <div class="tabs" id="mainTabs">
-      <button class="tab active" data-tab="preview">📖 預覽單字</button>
+      <button class="tab active" data-tab="preview">📖 預覽內容</button>
       <button class="tab" data-tab="quiz">📝 進入測驗</button>
     </div>
 
     <div id="previewPanel" class="panel">
-      <h2 class="section-title">📚 單字與句子清單</h2>
+      <h2 class="section-title">📚 預覽區</h2>
       <div class="chips" id="previewCategoryChips"></div>
       <div style="height:12px;"></div>
       <div class="grid" id="previewGrid"></div>
@@ -68,16 +67,19 @@
       <div class="chips" id="quizCategoryChips"></div>
       <div style="height:10px;"></div>
       <div class="mode-tabs" id="quizModeTabs"></div>
+
       <div class="quiz-box" style="margin-top:16px;">
         <div class="quiz-meta">
           <div>目前：<span id="quizCategoryText">未選擇</span></div>
           <div>分數：<span id="scoreText">0 / 0</span></div>
         </div>
-        <div class="question" id="questionBox">點擊「開始」</div>
+
+        <div class="question" id="questionBox">點擊「開始測驗」</div>
         <div class="hint" id="hintBox"></div>
         <div class="options" id="optionsBox"></div>
         <div class="result" id="resultBox"></div>
         <div class="answer" id="answerBox" style="display:none;"></div>
+
         <div class="actions">
           <button class="btn" id="startQuizBtn">開始測驗</button>
           <button class="btn secondary" id="nextBtn" style="display:none;">下一題 ❯</button>
@@ -88,19 +90,53 @@
     </div>
 
     <div class="panel">
-      <h2 class="section-title">💗 錯題本 (最近紀錄)</h2>
+      <h2 class="section-title">💗 錯題本</h2>
       <div id="wrongList">目前沒有錯題</div>
     </div>
   </div>
 
   <script>
-    // --- 這裡幫妳補齊了截圖中「所有」單字、地名與句子 ---
     const DATA = {
       kana: [
-        { j: "あ", z: "a", r: "a" }, { j: "い", z: "i", r: "i" }, { j: "う", z: "u", r: "u" }, { j: "え", z: "e", r: "e" }, { j: "お", z: "o", r: "o" },
-        { j: "か", z: "ka", r: "ka" }, { j: "き", z: "ki", r: "ki" }, { j: "く", z: "ku", r: "ku" }, { j: "け", z: "ke", r: "ke" }, { j: "こ", z: "ko", r: "ko" },
-        { j: "が", z: "ga", r: "ga" }, { j: "ぎ", z: "gi", r: "gi" }, { j: "ぱ", z: "pa", r: "pa" }, { j: "ぴ", z: "pi", r: "pi" },
-        { j: "きゃ", z: "kya", r: "kya" }, { j: "しゅ", z: "shu", r: "shu" }, { j: "ちょ", z: "cho", r: "cho" }
+        { j: "あ", z: "a", r: "a" }, { j: "い", z: "i", r: "i" }, { j: "う", z: "u", r: "u" },
+        { j: "え", z: "e", r: "e" }, { j: "お", z: "o", r: "o" },
+        { j: "か", z: "ka", r: "ka" }, { j: "き", z: "ki", r: "ki" }, { j: "く", z: "ku", r: "ku" },
+        { j: "け", z: "ke", r: "ke" }, { j: "こ", z: "ko", r: "ko" }
+      ],
+      dakuon: [
+        { j: "が", z: "ga", r: "ga" }, { j: "ぎ", z: "gi", r: "gi" }, { j: "ぐ", z: "gu", r: "gu" },
+        { j: "げ", z: "ge", r: "ge" }, { j: "ご", z: "go", r: "go" }
+      ],
+      handakuon: [
+        { j: "ぱ", z: "pa", r: "pa" }, { j: "ぴ", z: "pi", r: "pi" }, { j: "ぷ", z: "pu", r: "pu" },
+        { j: "ぺ", z: "pe", r: "pe" }, { j: "ぽ", z: "po", r: "po" }
+      ],
+      youon: [
+        { j: "きゃ", z: "kya", r: "kya" }, { j: "きゅ", z: "kyu", r: "kyu" }, { j: "きょ", z: "kyo", r: "kyo" },
+        { j: "しゃ", z: "sha", r: "sha" }, { j: "しゅ", z: "shu", r: "shu" }, { j: "しょ", z: "sho", r: "sho" },
+        { j: "ちゃ", z: "cha", r: "cha" }, { j: "ちゅ", z: "chu", r: "chu" }, { j: "ちょ", z: "cho", r: "cho" }
+      ],
+      sokuon: [
+        { j: "けっこん", z: "結婚" },
+        { j: "せっけん", z: "肥皂" },
+        { j: "きっさてん", z: "咖啡廳" },
+        { j: "ざっし", z: "雜誌" },
+        { j: "きって", z: "郵票" },
+        { j: "きっぷ", z: "車票" }
+      ],
+      chouon: [
+        { j: "とけい", z: "時鐘" },
+        { j: "えいが", z: "電影" },
+        { j: "こうえん", z: "公園" },
+        { j: "コーヒー", z: "咖啡" },
+        { j: "ビール", z: "啤酒" }
+      ],
+      hatsuon: [
+        { j: "さんま", z: "秋刀魚" },
+        { j: "しんぶん", z: "報紙" },
+        { j: "えんぴつ", z: "鉛筆" },
+        { j: "ぎんこう", z: "銀行" },
+        { j: "おんせん", z: "溫泉" }
       ],
       words: [
         { j: "スマホ", z: "手機" }, { j: "パソコン", z: "電腦" }, { j: "タクシー", z: "計程車" },
@@ -125,14 +161,27 @@
         { j: "台湾のマンゴーはおいしいですよ。", z: "台灣的芒果很好吃喔。" },
         { j: "少々お待ちください。", z: "請稍等一下。" },
         { j: "お国は どちらですか。", z: "你是哪國人？" }
+      ],
+      dialog: [
+        { j: "A：はじめまして。B：はじめまして。", z: "A：初次見面。B：初次見面。" },
+        { j: "A：どうぞよろしくお願いします。B：こちらこそ、よろしくお願いします。", z: "A：請多指教。B：我才要請你多指教。" },
+        { j: "A：いくらですか。B：200円です。", z: "A：多少錢呢？ B：200日圓。" },
+        { j: "A：これをください。B：はい、どうぞ。", z: "A：請給我這個。B：好的，請。" }
       ]
     };
 
     const categoryNames = {
-      kana: "50音/發音",
+      kana: "50音",
+      dakuon: "濁音",
+      handakuon: "半濁音",
+      youon: "拗音",
+      sokuon: "促音",
+      chouon: "長音",
+      hatsuon: "鼻音",
       words: "課本單字",
       places: "國籍/地名",
-      sentences: "生活句子"
+      sentences: "生活句子",
+      dialog: "對話"
     };
 
     const quizModes = [
@@ -145,13 +194,26 @@
     let quizCategory = "words";
     let quizMode = "jp_to_zh";
     let currentQuestion = null;
-    let score = 0; let total = 0;
+    let score = 0;
+    let total = 0;
     let wrongBook = [];
 
     function speakJa(text) {
+      if (!text) return;
       const ut = new SpeechSynthesisUtterance(text);
-      ut.lang = "ja-JP"; ut.rate = 0.85;
-      speechSynthesis.cancel(); speechSynthesis.speak(ut);
+      ut.lang = "ja-JP";
+      ut.rate = 0.85;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(ut);
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
     }
 
     function renderMainTabs() {
@@ -167,107 +229,234 @@
     }
 
     function renderPreviewCategoryChips() {
-      const box = document.getElementById("previewCategoryChips"); box.innerHTML = "";
+      const box = document.getElementById("previewCategoryChips");
+      box.innerHTML = "";
       Object.keys(DATA).forEach(key => {
         const btn = document.createElement("button");
         btn.className = "chip" + (previewCategory === key ? " active" : "");
         btn.textContent = categoryNames[key];
-        btn.onclick = () => { previewCategory = key; renderPreviewCategoryChips(); renderPreviewGrid(); };
+        btn.onclick = () => {
+          previewCategory = key;
+          renderPreviewCategoryChips();
+          renderPreviewGrid();
+        };
         box.appendChild(btn);
       });
     }
 
     function renderPreviewGrid() {
-      const grid = document.getElementById("previewGrid"); grid.innerHTML = "";
+      const grid = document.getElementById("previewGrid");
+      grid.innerHTML = "";
+
       DATA[previewCategory].forEach(item => {
-        const card = document.createElement("div"); card.className = "card";
-        card.innerHTML = `<div class="jp">${item.j}</div><div class="zh">${item.z}</div>${item.r ? `<div class="sub">拼音：${item.r}</div>`:''}<button class="speak">🔊 朗讀</button>`;
+        const card = document.createElement("div");
+        card.className = "card";
+
+        if (previewCategory === "dialog") {
+          card.innerHTML = `
+            <div class="jp" style="font-size:1rem; line-height:1.8;">${item.j}</div>
+            <div class="zh" style="line-height:1.8;">${item.z}</div>
+            <button class="speak">🔊 朗讀</button>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="jp">${item.j}</div>
+            <div class="zh">${item.z}</div>
+            ${item.r ? `<div class="sub">拼音：${item.r}</div>` : ""}
+            <button class="speak">🔊 朗讀</button>
+          `;
+        }
+
         card.querySelector(".speak").onclick = () => speakJa(item.j);
         grid.appendChild(card);
       });
     }
 
     function renderQuizCategoryChips() {
-      const box = document.getElementById("quizCategoryChips"); box.innerHTML = "";
+      const box = document.getElementById("quizCategoryChips");
+      box.innerHTML = "";
       Object.keys(DATA).forEach(key => {
         const btn = document.createElement("button");
         btn.className = "chip" + (quizCategory === key ? " active" : "");
         btn.textContent = categoryNames[key];
-        btn.onclick = () => { quizCategory = key; renderQuizCategoryChips(); document.getElementById("quizCategoryText").textContent = categoryNames[key]; };
+        btn.onclick = () => {
+          quizCategory = key;
+          renderQuizCategoryChips();
+          document.getElementById("quizCategoryText").textContent = categoryNames[key];
+        };
         box.appendChild(btn);
       });
     }
 
     function renderQuizModeTabs() {
-      const box = document.getElementById("quizModeTabs"); box.innerHTML = "";
+      const box = document.getElementById("quizModeTabs");
+      box.innerHTML = "";
       quizModes.forEach(mode => {
         const btn = document.createElement("button");
         btn.className = "mode-tab" + (quizMode === mode.key ? " active" : "");
         btn.textContent = mode.label;
-        btn.onclick = () => { quizMode = mode.key; renderQuizModeTabs(); };
+        btn.onclick = () => {
+          quizMode = mode.key;
+          renderQuizModeTabs();
+        };
         box.appendChild(btn);
       });
     }
 
-    function startQuiz() {
-      const pool = DATA[quizCategory];
-      const item = pool[Math.floor(Math.random() * pool.length)];
-      currentQuestion = item;
+    function setQuizMessage(question, hint = "") {
+      document.getElementById("questionBox").textContent = question;
+      document.getElementById("hintBox").textContent = hint;
+      document.getElementById("optionsBox").innerHTML = "";
       document.getElementById("resultBox").textContent = "";
       document.getElementById("answerBox").style.display = "none";
       document.getElementById("nextBtn").style.display = "none";
+    }
+
+    function startQuiz() {
+      const pool = DATA[quizCategory];
+
+      if (!pool || pool.length < 4) {
+        setQuizMessage("這個分類題目太少", "至少需要 4 題才能出選擇題");
+        return;
+      }
+
+      if (quizMode === "kana_to_romaji" && !["kana", "dakuon", "handakuon", "youon"].includes(quizCategory)) {
+        setQuizMessage("這個分類不能做拼音測驗", "請切換到 50音、濁音、半濁音或拗音");
+        return;
+      }
+
+      const item = pool[Math.floor(Math.random() * pool.length)];
+      currentQuestion = item;
+
+      document.getElementById("resultBox").textContent = "";
+      document.getElementById("answerBox").style.display = "none";
+      document.getElementById("answerBox").innerHTML = "";
+      document.getElementById("nextBtn").style.display = "none";
       document.getElementById("optionsBox").innerHTML = "";
 
-      let qText = "", correct = "", field = "z";
-      if (quizMode === "jp_to_zh") { qText = item.j; correct = item.z; field = "z"; document.getElementById("hintBox").textContent = "選出中文意思"; }
-      else if (quizMode === "zh_to_jp") { qText = item.z; correct = item.j; field = "j"; document.getElementById("hintBox").textContent = "選出日文單字"; }
-      else { qText = item.j; correct = item.r || "無"; field = "r"; document.getElementById("hintBox").textContent = "選出羅馬拼音"; }
+      let qText = "";
+      let correct = "";
+      let field = "z";
+
+      if (quizMode === "jp_to_zh") {
+        qText = item.j;
+        correct = item.z;
+        field = "z";
+        document.getElementById("hintBox").textContent = "選出正確中文";
+      } else if (quizMode === "zh_to_jp") {
+        qText = item.z;
+        correct = item.j;
+        field = "j";
+        document.getElementById("hintBox").textContent = "選出正確日文";
+      } else {
+        qText = item.j;
+        correct = item.r;
+        field = "r";
+        document.getElementById("hintBox").textContent = "選出正確羅馬拼音";
+      }
 
       document.getElementById("questionBox").textContent = qText;
-      if(quizMode === "jp_to_zh") speakJa(item.j);
 
-      let opts = [correct];
-      while(opts.length < 4) {
-        let r = pool[Math.floor(Math.random()*pool.length)][field];
-        if(r && !opts.includes(r)) opts.push(r);
+      const candidates = [...new Set(pool.map(x => x[field]).filter(Boolean))].filter(v => v !== correct);
+      const opts = shuffle([correct, ...shuffle(candidates).slice(0, 3)]);
+
+      if (opts.length < 4) {
+        setQuizMessage("這個分類選項不足", "目前還不能用這個模式測驗");
+        return;
       }
-      opts.sort(()=>Math.random()-0.5).forEach(opt => {
-        const btn = document.createElement("button"); btn.className = "option"; btn.textContent = opt;
+
+      if (quizMode === "jp_to_zh") speakJa(item.j);
+
+      opts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.textContent = opt;
+
         btn.onclick = () => {
           total++;
           document.querySelectorAll(".option").forEach(b => b.disabled = true);
-          if(opt === correct) { score++; btn.classList.add("correct"); document.getElementById("resultBox").textContent = "⭕ 太棒了！"; }
-          else { 
-            btn.classList.add("wrong"); document.getElementById("resultBox").textContent = "❌ 答錯囉"; 
-            document.querySelectorAll(".option").forEach(b => { if(b.textContent === correct) b.classList.add("correct"); });
-            wrongBook.unshift({ cat: categoryNames[quizCategory], j: item.j, z: item.z });
+
+          if (opt === correct) {
+            score++;
+            btn.classList.add("correct");
+            document.getElementById("resultBox").textContent = "⭕ 太棒了！";
+          } else {
+            btn.classList.add("wrong");
+            document.getElementById("resultBox").textContent = "❌ 答錯囉";
+            document.querySelectorAll(".option").forEach(b => {
+              if (b.textContent === correct) b.classList.add("correct");
+            });
+
+            wrongBook.unshift({
+              cat: categoryNames[quizCategory],
+              j: item.j,
+              z: item.z,
+              r: item.r || ""
+            });
             renderWrongBook();
           }
+
           document.getElementById("answerBox").style.display = "block";
-          document.getElementById("answerBox").innerHTML = `<b>答案：</b>${item.j} (${item.z})`;
+          document.getElementById("answerBox").innerHTML = `
+            <b>答案：</b>${item.j} (${item.z})
+            ${item.r ? `<br><b>拼音：</b>${item.r}` : ""}
+          `;
           document.getElementById("nextBtn").style.display = "inline-block";
           document.getElementById("scoreText").textContent = `${score} / ${total}`;
         };
+
         document.getElementById("optionsBox").appendChild(btn);
       });
     }
 
     function renderWrongBook() {
       const box = document.getElementById("wrongList");
-      if(!wrongBook.length) { box.textContent = "目前沒有錯題"; return; }
+      if (!wrongBook.length) {
+        box.textContent = "目前沒有錯題";
+        return;
+      }
+
       box.innerHTML = "";
       wrongBook.slice(0, 10).forEach(i => {
-        const d = document.createElement("div"); d.className = "wrong-item";
-        d.innerHTML = `[${i.cat}] <b>${i.j}</b> → ${i.z}`; box.appendChild(d);
+        const d = document.createElement("div");
+        d.className = "wrong-item";
+        d.innerHTML = `
+          [${i.cat}] <b>${i.j}</b> → ${i.z}
+          ${i.r ? `<br>拼音：${i.r}` : ""}
+        `;
+        box.appendChild(d);
       });
+    }
+
+    function resetQuiz() {
+      score = 0;
+      total = 0;
+      wrongBook = [];
+      currentQuestion = null;
+
+      document.getElementById("questionBox").textContent = "點擊「開始測驗」";
+      document.getElementById("hintBox").textContent = "";
+      document.getElementById("optionsBox").innerHTML = "";
+      document.getElementById("resultBox").textContent = "";
+      document.getElementById("answerBox").style.display = "none";
+      document.getElementById("answerBox").innerHTML = "";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("scoreText").textContent = "0 / 0";
+      renderWrongBook();
     }
 
     document.getElementById("startQuizBtn").onclick = startQuiz;
     document.getElementById("nextBtn").onclick = startQuiz;
     document.getElementById("speakBtn").onclick = () => speakJa(currentQuestion?.j);
-    document.getElementById("resetBtn").onclick = () => location.reload();
+    document.getElementById("resetBtn").onclick = resetQuiz;
 
-    renderMainTabs(); renderPreviewCategoryChips(); renderPreviewGrid(); renderQuizCategoryChips(); renderQuizModeTabs();
+    renderMainTabs();
+    renderPreviewCategoryChips();
+    renderPreviewGrid();
+    renderQuizCategoryChips();
+    renderQuizModeTabs();
+    renderWrongBook();
+    document.getElementById("quizCategoryText").textContent = categoryNames[quizCategory];
   </script>
 </body>
 </html>
