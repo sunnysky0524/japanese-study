@@ -1,59 +1,71 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sunny 日文課本完整版</title>
+
 <style>
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: sans-serif; background: #fff4f8; color: #4a3b44; }
-  .header { background: #ff6fa5; color: white; text-align: center; padding: 15px; font-weight: bold; font-size: 18px; }
-  .tabs { display: flex; position: sticky; top: 0; z-index: 10; }
-  .tab { flex: 1; padding: 12px; border: none; background: #ffd6e8; font-weight: bold; }
-  .tab.active { background: #ff6fa5; color: white; }
-  .panel { padding: 15px; }
-  .hidden { display: none; }
+body{margin:0;font-family:sans-serif;background:#fff4f8}
+.header{background:#ff6fa5;color:white;text-align:center;padding:15px;font-weight:bold}
+.tabs{display:flex}
+.tab{flex:1;padding:12px;border:none;background:#ffd6e8}
+.tab.active{background:#ff6fa5;color:white}
+.panel{padding:15px}
+.hidden{display:none}
 
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .chip { padding: 7px 11px; border-radius: 20px; background: #ffe0ec; border: none; }
-  .chip.active { background: #ff6fa5; color: white; }
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{padding:6px 10px;border-radius:20px;background:#ffe0ec;border:none}
+.chip.active{background:#ff6fa5;color:white}
 
-  .card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .jp { font-size: 18px; font-weight: bold; line-height: 1.7; }
-  .zh { color: #ff4f95; line-height: 1.7; margin-top: 4px; }
-  .kana { font-size: 13px; color: #888; line-height: 1.7; margin-top: 4px; }
-  .section-title { font-weight: bold; color: #ff4f95; margin: 16px 0 10px; font-size: 18px; }
+.card{background:white;border-radius:12px;padding:10px;margin-bottom:10px}
+.jp{font-size:18px;font-weight:bold}
+.zh{color:#ff4f95}
+.kana{font-size:13px;color:#888}
 
-  .option { display: block; width: 100%; margin-top: 10px; padding: 12px; border-radius: 10px; border: 1px solid pink; background: white; }
-  .correct { background: #d4ffd4; }
-  .wrong { background: #ffd4d4; }
+.speak{margin-top:8px;padding:8px;border:none;border-radius:10px;background:#ffe0ec;color:#c63f7d}
 
-  .btn { margin-top: 10px; padding: 12px; width: 100%; background: #ff6fa5; color: white; border: none; border-radius: 10px; font-weight: bold; }
-  .meta { color: #777; font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
+.option{display:block;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid pink;background:white}
+.correct{background:#d4ffd4}
+.wrong{background:#ffd4d4}
+
+.btn{margin-top:10px;padding:12px;width:100%;background:#ff6fa5;color:white;border:none;border-radius:10px}
 </style>
 </head>
+
 <body>
 
 <div class="header">🌸 Sunny 日文課本完整版</div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchMainTab(event,'preview')">📖 預覽</button>
-  <button class="tab" onclick="switchMainTab(event,'quiz')">📝 測驗</button>
+<button class="tab active" onclick="tab(event,'p')">📖 預覽</button>
+<button class="tab" onclick="tab(event,'q')">📝 測驗</button>
 </div>
 
-<div id="previewPanel" class="panel">
-  <div class="chips" id="previewChips"></div>
-  <div id="previewBox"></div>
+<div id="p" class="panel">
+<div class="chips" id="pChips"></div>
+<div id="pBox"></div>
 </div>
 
-<div id="quizPanel" class="panel hidden">
-  <div class="chips" id="quizChips"></div>
-  <div class="meta" id="quizMeta">請先選類別，再按「開始測驗」</div>
-  <div id="qbox" class="card">請點擊開始測驗</div>
-  <div id="opts"></div>
-  <div id="res" class="meta"></div>
-  <button class="btn" onclick="startQuiz()">開始測驗 / 下一題</button>
+<div id="q" class="panel hidden">
+<div class="chips" id="qChips"></div>
+<div id="qbox"></div>
+<div id="opts"></div>
+<div id="res"></div>
+<button class="btn" onclick="nextQ()">下一題</button>
 </div>
+
+<script>
+
+// 🔊 發音
+function speak(text){
+let u=new SpeechSynthesisUtterance(text);
+u.lang="ja-JP";
+speechSynthesis.cancel();
+speechSynthesis.speak(u);
+}
+
+// ===== 資料 =====
 
 <script>
 const DATA = {
@@ -346,117 +358,101 @@ const CATEGORY_NAMES = {
   sentences: "句子",
   dialog: "對話"
 };
+ 
+// ===== 預覽 =====
+let pNow="words";
 
-let previewCategory = "words";
-let quizCategory = "words";
-
-function buildChips(containerId, activeKey, onClick) {
-  const box = document.getElementById(containerId);
-  box.innerHTML = "";
-  Object.keys(DATA).forEach(key => {
-    const b = document.createElement("button");
-    b.className = "chip" + (key === activeKey ? " active" : "");
-    b.textContent = CATEGORY_NAMES[key];
-    b.onclick = () => onClick(key);
-    box.appendChild(b);
-  });
+function renderPreview(){
+let box=document.getElementById('pBox');
+box.innerHTML='';
+DATA[pNow].forEach(i=>{
+let d=document.createElement('div');
+d.className='card';
+d.innerHTML=`
+<div class="jp">${i.j}</div>
+<div class="zh">${i.z}</div>
+<button class="speak">🔊 播放</button>`;
+d.querySelector('.speak').onclick=()=>speak(i.j);
+box.appendChild(d);
+});
 }
 
-function renderPreviewChips() {
-  buildChips("previewChips", previewCategory, (key) => {
-    previewCategory = key;
-    renderPreviewChips();
-    renderPreview();
-  });
+function renderPChips(){
+let box=document.getElementById('pChips');
+box.innerHTML='';
+Object.keys(DATA).forEach(k=>{
+let b=document.createElement('button');
+b.className='chip'+(pNow===k?' active':'');
+b.innerText=CAT[k];
+b.onclick=()=>{pNow=k;renderPChips();renderPreview();}
+box.appendChild(b);
+});
 }
 
-function renderQuizChips() {
-  buildChips("quizChips", quizCategory, (key) => {
-    quizCategory = key;
-    renderQuizChips();
-    document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
-  });
+// ===== 測驗 =====
+let qNow="words",cur;
+
+function nextQ(){
+let pool=DATA[qNow];
+cur=pool[Math.floor(Math.random()*pool.length)];
+
+document.getElementById('qbox').innerHTML=`
+<div class="jp">${cur.j}</div>
+<button class="speak">🔊 播放</button>`;
+document.querySelector('#qbox .speak').onclick=()=>speak(cur.j);
+
+let opts=[cur.z];
+while(opts.length<4){
+let r=pool[Math.floor(Math.random()*pool.length)].z;
+if(!opts.includes(r))opts.push(r);
 }
 
-function renderPreview() {
-  const box = document.getElementById("previewBox");
-  box.innerHTML = "";
+let box=document.getElementById('opts');
+box.innerHTML='';
+opts.sort(()=>Math.random()-0.5);
 
-  const list = DATA[previewCategory];
-  list.forEach(item => {
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <div class="jp">${item.j}</div>
-      <div class="zh">${item.z}</div>
-      ${item.k ? `<div class="kana">50音：${item.k}</div>` : ""}
-    `;
-    box.appendChild(d);
-  });
+opts.forEach(o=>{
+let b=document.createElement('button');
+b.className='option';
+b.innerText=o;
+b.onclick=()=>{
+if(o===cur.z){
+b.classList.add('correct');
+document.getElementById('res').innerText="⭕ 正確";
+}else{
+b.classList.add('wrong');
+document.getElementById('res').innerText="❌ "+cur.z;
+}
+};
+box.appendChild(b);
+});
 }
 
-let currentQuestion = null;
-
-function startQuiz() {
-  const pool = DATA[quizCategory];
-  const item = pool[Math.floor(Math.random() * pool.length)];
-  currentQuestion = item;
-
-  const qbox = document.getElementById("qbox");
-  const opts = document.getElementById("opts");
-  const res = document.getElementById("res");
-  const meta = document.getElementById("quizMeta");
-
-  qbox.innerHTML = `<div class="jp">${item.j}</div>`;
-  opts.innerHTML = "";
-  res.innerHTML = "";
-  meta.innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
-
-  const allPool = [...new Set(pool.map(x => x.z))];
-  const choices = [item.z];
-
-  while (choices.length < 4 && allPool.length >= 4) {
-    const r = allPool[Math.floor(Math.random() * allPool.length)];
-    if (!choices.includes(r)) choices.push(r);
-  }
-
-  while (choices.length < 4) {
-    const fallback = ["不知道", "還沒整理", "再想想", "不確定"][choices.length - 1];
-    if (!choices.includes(fallback)) choices.push(fallback);
-  }
-
-  choices.sort(() => Math.random() - 0.5);
-
-  choices.forEach(choice => {
-    const b = document.createElement("button");
-    b.className = "option";
-    b.textContent = choice;
-    b.onclick = () => {
-      document.querySelectorAll(".option").forEach(btn => btn.disabled = true);
-
-      if (choice === item.z) {
-        b.classList.add("correct");
-        res.innerHTML = `⭕ 正確<br>${item.k ? "50音：" + item.k : ""}`;
-      } else {
-        b.classList.add("wrong");
-        res.innerHTML = `❌ 正解：${item.z}<br>${item.k ? "50音：" + item.k : ""}`;
-      }
-    };
-    opts.appendChild(b);
-  });
+function renderQChips(){
+let box=document.getElementById('qChips');
+box.innerHTML='';
+Object.keys(DATA).forEach(k=>{
+let b=document.createElement('button');
+b.className='chip'+(qNow===k?' active':'');
+b.innerText=CAT[k];
+b.onclick=()=>{qNow=k;renderQChips();}
+box.appendChild(b);
+});
 }
 
-function switchMainTab(e, tab) {
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-  e.target.classList.add("active");
-  document.getElementById("previewPanel").classList.toggle("hidden", tab !== "preview");
-  document.getElementById("quizPanel").classList.toggle("hidden", tab !== "quiz");
+// ===== 切換 =====
+function tab(e,t){
+document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+e.target.classList.add('active');
+document.getElementById('p').classList.toggle('hidden',t!=='p');
+document.getElementById('q').classList.toggle('hidden',t!=='q');
 }
 
-renderPreviewChips();
-renderQuizChips();
+// 初始化
+renderPChips();
 renderPreview();
-document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
+renderQChips();
+
 </script>
 
 </body>
