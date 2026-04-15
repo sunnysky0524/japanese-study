@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>會說話的日語單字王</title>
+    <title>Sunny 的日語全攻略</title>
     <style>
         body { font-family: sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; }
@@ -13,43 +13,59 @@
         .content { flex: 1; overflow-y: auto; padding: 15px; display: none; }
         .content.active { display: block; }
         .list-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .speaker-icon { font-size: 1.2rem; margin-right: 10px; cursor: pointer; }
-        .quiz-card { background: white; padding: 20px; border-radius: 20px; text-align: center; margin: 10px auto; max-width: 400px; }
-        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        button { padding: 15px; border: 1px solid #fbcfe8; background: white; border-radius: 10px; color: #d63384; font-weight: bold; }
-        .next-btn { background: #d63384; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 10px; display: none; }
+        .jp-text { font-size: 1.2rem; font-weight: bold; color: #333; }
+        .zh-text { color: #d63384; font-weight: 500; text-align: right; max-width: 60%; }
+        .quiz-card { background: white; padding: 20px; border-radius: 20px; text-align: center; margin: 10px auto; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .options { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+        button.opt { padding: 15px; border: 1px solid #fbcfe8; background: white; border-radius: 10px; color: #d63384; font-weight: bold; text-align: left; }
+        .next-btn { background: #d63384; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-weight: bold; border:none; }
     </style>
 </head>
 <body>
-    <div class="header">日語朗讀學習器</div>
+    <div class="header">日語單字與句子朗讀</div>
     <div class="tabs">
-        <div id="t1" class="tab active" onclick="sw('l')">📖 預覽與朗讀</div>
-        <div id="t2" class="tab" onclick="sw('q')">📝 聽音測驗</div>
+        <div id="t1" class="tab active" onclick="sw('l')">📖 瀏覽全部</div>
+        <div id="t2" class="tab" onclick="sw('q')">📝 測驗一下</div>
     </div>
     <div id="c1" class="content active"></div>
     <div id="c2" class="content">
         <div class="quiz-card">
-            <div id="q" style="font-size:2rem; font-weight:bold; cursor:pointer;" onclick="speak(document.getElementById('q').innerText)">🔊 點我發音</div>
+            <div id="q" style="font-size:1.5rem; font-weight:bold; cursor:pointer; color:#333;" onclick="speak(document.getElementById('q').innerText)">🔊 點我讀音</div>
             <div id="opts" class="options"></div>
             <div id="res" style="margin-top:15px; font-weight:bold;"></div>
-            <button id="nxt" class="next-btn" onclick="nextQ()">下一題</button>
+            <button id="nxt" class="next-btn" onclick="nextQ()">下一題 ❯</button>
         </div>
     </div>
+
     <script>
+        // 這裡幫妳補齊了圖片中所有的重點單字與句子
         const data = [
-            {j:"いえ",z:"家"},{j:"えき",z:"車站"},{j:"かき",z:"柿子"},{j:"あき",z:"秋天"},
-            {j:"うえ",z:"上面"},{j:"かお",z:"臉"},{j:"なし",z:"梨子"},{j:"さかな",z:"魚"},
-            {j:"いぬ",z:"狗"},{j:"ねこ",z:"貓"},{j:"はな",z:"花"},{j:"スマホ",z:"手機"},
-            {j:"コンビニ",z:"便利商店"},{j:"トイレ",z:"洗手間"}
+            // 基礎單字
+            {j:"いえ", z:"家"}, {j:"えき", z:"車站"}, {j:"かき", z:"柿子"}, {j:"きく", z:"菊花"}, 
+            {j:"いけ", z:"池塘"}, {j:"こい", z:"鯉魚"}, {j:"あき", z:"秋天"}, {j:"うえ", z:"上面"},
+            {j:"かお", z:"臉"}, {j:"なし", z:"梨子"}, {j:"さかな", z:"魚"}, {j:"いぬ", z:"狗"},
+            {j:"ねこ", z:"貓"}, {j:"はな", z:"花"}, {j:"くつ", z:"鞋子"}, {j:"つき", z:"月亮"},
+            {j:"がくせい", z:"學生"}, {j:"ぎゅうにゅう", z:"牛奶"}, {j:"しょうゆ", z:"醬油"},
+            {j:"としょかん", z:"圖書館"}, {j:"びょういん", z:"醫院"}, {j:"れんしゅう", z:"練習"},
+            // 片假名單字
+            {j:"スマホ", z:"智慧型手機"}, {j:"コンビニ", z:"便利商店"}, {j:"アイスクリーム", z:"冰淇淋"},
+            {j:"デパート", z:"百貨公司"}, {j:"レストラン", z:"餐廳"}, {j:"パソコン", z:"個人電腦"},
+            {j:"マクドナルド", z:"麥當勞"}, {j:"クリスマス", z:"聖誕節"},
+            // 句子翻譯
+            {j:"はじめまして、ダイアナです。", z:"初次見面，我是戴安娜。"},
+            {j:"どうぞ よろしくお願いします。", z:"請多指教。"},
+            {j:"ありがとうございました。", z:"非常感謝 (過去式)。"},
+            {j:"すみません。これをください。", z:"對不起，請給我這個。"},
+            {j:"台湾のマンゴーはおいしいですよ。", z:"台灣的芒果很好吃喔！"},
+            {j:"いくらですか。", z:"多少錢呢？"},
+            {j:"全部で いくらですか。", z:"總共多少錢呢？"},
+            {j:"かしこまりました。少々お待ちください。", z:"知道了，請稍等。"}
         ];
 
-        // 朗讀功能
-        function speak(text) {
-            const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'ja-JP'; // 設定為日語
-            utter.rate = 0.8;    // 語速慢一點，比較好學
-            synth.speak(utter);
+        function speak(t) {
+            const s = window.speechSynthesis;
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'ja-JP'; u.rate = 0.8; s.speak(u);
         }
 
         const listDiv = document.getElementById('c1');
@@ -57,7 +73,7 @@
             const div = document.createElement('div');
             div.className = 'list-card';
             div.onclick = () => speak(item.j);
-            div.innerHTML = `<div><span class="speaker-icon">🔊</span><b>${item.j}</b></div><span>${item.z}</span>`;
+            div.innerHTML = `<div><span style="margin-right:8px;">🔊</span><span class="jp-text">${item.j}</span></div><span class="zh-text">${item.z}</span>`;
             listDiv.appendChild(div);
         });
 
@@ -72,8 +88,8 @@
         function nextQ(){
             const item = data[Math.floor(Math.random()*data.length)];
             document.getElementById('q').innerText = item.j;
-            speak(item.j); // 出題時自動發音
-            const optsBox = document.getElementById('opts'); optsBox.innerHTML = "";
+            speak(item.j);
+            const box = document.getElementById('opts'); box.innerHTML = "";
             document.getElementById('res').innerText = "";
             document.getElementById('nxt').style.display = "none";
             let choices = [item.z];
@@ -82,19 +98,15 @@
                 if(!choices.includes(r)) choices.push(r);
             }
             choices.sort(()=>Math.random()-0.5).forEach(o => {
-                const btn = document.createElement('button'); btn.innerText = o;
+                const btn = document.createElement('button');
+                btn.className = "opt"; btn.innerText = o;
                 btn.onclick = () => {
-                    const res = document.getElementById('result');
-                    if(o==item.z){ 
-                        document.getElementById('res').innerText="⭕ 正確"; 
-                        document.getElementById('res').style.color="green"; 
-                    } else { 
-                        document.getElementById('res').innerText="❌ 答案是："+item.z; 
-                        document.getElementById('res').style.color="red"; 
-                    }
+                    const r = document.getElementById('res');
+                    if(o==item.z){ r.innerText="⭕ 正確！"; r.style.color="green"; }
+                    else { r.innerText="❌ 答案是："+item.z; r.style.color="red"; }
                     document.getElementById('nxt').style.display = "block";
                 };
-                optsBox.appendChild(btn);
+                box.appendChild(btn);
             });
         }
     </script>
