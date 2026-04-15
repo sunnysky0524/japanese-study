@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sunny 的日語全攻略</title>
+    <title>Sunny 的日語全攻略 - 全收錄版</title>
     <style>
         body { font-family: sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; }
@@ -12,25 +12,25 @@
         .tab.active { background: #d63384; color: white; }
         .content { flex: 1; overflow-y: auto; padding: 15px; display: none; }
         .content.active { display: block; }
-        .list-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .jp-text { font-size: 1.2rem; font-weight: bold; color: #333; }
-        .zh-text { color: #d63384; font-weight: 500; text-align: right; max-width: 60%; }
+        .list-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .jp-text { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .zh-text { color: #d63384; font-weight: 500; text-align: right; font-size: 0.9rem; max-width: 55%; }
         .quiz-card { background: white; padding: 20px; border-radius: 20px; text-align: center; margin: 10px auto; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .options { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
-        button.opt { padding: 15px; border: 1px solid #fbcfe8; background: white; border-radius: 10px; color: #d63384; font-weight: bold; text-align: left; }
+        .options { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 20px; }
+        button.opt { padding: 12px; border: 1px solid #fbcfe8; background: white; border-radius: 10px; color: #d63384; font-weight: bold; text-align: left; font-size: 0.95rem; }
         .next-btn { background: #d63384; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-weight: bold; border:none; }
     </style>
 </head>
 <body>
-    <div class="header">日語單字與句子朗讀</div>
+    <div class="header">日語全課目朗讀練習 (8-13課)</div>
     <div class="tabs">
-        <div id="t1" class="tab active" onclick="sw('l')">📖 瀏覽全部</div>
-        <div id="t2" class="tab" onclick="sw('q')">📝 測驗一下</div>
+        <div id="t1" class="tab active" onclick="sw('l')">📖 單字清單</div>
+        <div id="t2" class="tab" onclick="sw('q')">📝 隨機測驗</div>
     </div>
     <div id="c1" class="content active"></div>
     <div id="c2" class="content">
         <div class="quiz-card">
-            <div id="q" style="font-size:1.5rem; font-weight:bold; cursor:pointer; color:#333;" onclick="speak(document.getElementById('q').innerText)">🔊 點我讀音</div>
+            <div id="q" style="font-size:1.5rem; font-weight:bold; cursor:pointer; color:#333;" onclick="speak(document.getElementById('q').innerText)">🔊 點擊讀音</div>
             <div id="opts" class="options"></div>
             <div id="res" style="margin-top:15px; font-weight:bold;"></div>
             <button id="nxt" class="next-btn" onclick="nextQ()">下一題 ❯</button>
@@ -38,21 +38,31 @@
     </div>
 
     <script>
-        // 這裡幫妳補齊了圖片中所有的重點單字與句子
         const data = [
-            // 基礎單字
+            // --- 50 音基礎單字 ---
             {j:"いえ", z:"家"}, {j:"えき", z:"車站"}, {j:"かき", z:"柿子"}, {j:"きく", z:"菊花"}, 
             {j:"いけ", z:"池塘"}, {j:"こい", z:"鯉魚"}, {j:"あき", z:"秋天"}, {j:"うえ", z:"上面"},
             {j:"かお", z:"臉"}, {j:"なし", z:"梨子"}, {j:"さかな", z:"魚"}, {j:"いぬ", z:"狗"},
             {j:"ねこ", z:"貓"}, {j:"はな", z:"花"}, {j:"くつ", z:"鞋子"}, {j:"つき", z:"月亮"},
-            {j:"がくせい", z:"學生"}, {j:"ぎゅうにゅう", z:"牛奶"}, {j:"しょうゆ", z:"醬油"},
+            {j:"あおい", z:"藍色的"}, {j:"あかい", z:"紅色的"},
+            // --- 第 8, 9, 10 課：拗音與片假名 ---
+            {j:"ぎゅうにゅう", z:"牛奶"}, {j:"しょうゆ", z:"醬油"}, {j:"ちゃわん", z:"飯碗"},
             {j:"としょかん", z:"圖書館"}, {j:"びょういん", z:"醫院"}, {j:"れんしゅう", z:"練習"},
-            // 片假名單字
-            {j:"スマホ", z:"智慧型手機"}, {j:"コンビニ", z:"便利商店"}, {j:"アイスクリーム", z:"冰淇淋"},
-            {j:"デパート", z:"百貨公司"}, {j:"レストラン", z:"餐廳"}, {j:"パソコン", z:"個人電腦"},
-            {j:"マクドナルド", z:"麥當勞"}, {j:"クリスマス", z:"聖誕節"},
-            // 句子翻譯
-            {j:"はじめまして、ダイアナです。", z:"初次見面，我是戴安娜。"},
+            {j:"スマホ", z:"智慧型手機"}, {j:"タクシー", z:"計程車"}, {j:"デパート", z:"百貨公司"},
+            {j:"トイレ", z:"洗手間"}, {j:"アイスクリーム", z:"冰淇淋"}, {j:"ケーキ", z:"蛋糕"},
+            {j:"コーヒー", z:"咖啡"}, {j:"コンビニ", z:"便利商店"}, {j:"カメラ", z:"照相機"},
+            {j:"エレベーター", z:"電梯"}, {j:"エスカレーター", z:"手扶梯"},
+            // --- 第 11, 12, 13 課：發音規則與進階片假名 ---
+            {j:"さんま", z:"秋刀魚"}, {j:"しんぶん", z:"報紙"}, {j:"ぎんこう", z:"銀行"},
+            {j:"おんせん", z:"溫泉"}, {j:"てんいん", z:"店員"}, {j:"がくせい", z:"學生"},
+            {j:"せんせい", z:"老師"}, {j:"がっこう", z:"學校"}, {j:"けっこん", z:"結婚"},
+            {j:"きって", z:"郵票"}, {j:"きっぷ", z:"車票"}, {j:"いっしょ", z:"一起"},
+            {j:"ちょっと", z:"稍微、一下"}, {j:"せんたくき", z:"洗衣機"},
+            {j:"マクドナルド", z:"麥當勞"}, {j:"チョコレート", z:"巧克力"},
+            {j:"クリスマス", z:"聖誕節"}, {j:"アルバイト", z:"打工、兼差"},
+            // --- 地名與句子 ---
+            {j:"台湾", z:"台灣"}, {j:"ニューヨーク", z:"紐約"}, {j:"ロンドン", z:"倫敦"},
+            {j:"富士山", z:"富士山"}, {j:"はじめまして、ダイアナです。", z:"初次見面，我是戴安娜。"},
             {j:"どうぞ よろしくお願いします。", z:"請多指教。"},
             {j:"ありがとうございました。", z:"非常感謝 (過去式)。"},
             {j:"すみません。これをください。", z:"對不起，請給我這個。"},
