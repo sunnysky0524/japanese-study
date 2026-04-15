@@ -19,9 +19,9 @@ body{margin:0;font-family:sans-serif;background:#fff4f8}
 .chip.active{background:#ff6fa5;color:white}
 
 .card{background:white;border-radius:12px;padding:10px;margin-bottom:10px}
-.jp{font-size:18px;font-weight:bold}
-.zh{color:#ff4f95}
-.kana{font-size:13px;color:#888}
+.jp{font-size:18px;font-weight:bold;line-height:1.6}
+.zh{color:#ff4f95;line-height:1.6}
+.kana{font-size:13px;color:#888;line-height:1.6}
 
 .speak{margin-top:8px;padding:8px;border:none;border-radius:10px;background:#ffe0ec;color:#c63f7d}
 
@@ -43,31 +43,28 @@ body{margin:0;font-family:sans-serif;background:#fff4f8}
 </div>
 
 <div id="p" class="panel">
-<div class="chips" id="pChips"></div>
-<div id="pBox"></div>
+  <div class="chips" id="pChips"></div>
+  <div id="pBox"></div>
 </div>
 
 <div id="q" class="panel hidden">
-<div class="chips" id="qChips"></div>
-<div id="qbox"></div>
-<div id="opts"></div>
-<div id="res"></div>
-<button class="btn" onclick="nextQ()">下一題</button>
+  <div class="chips" id="qChips"></div>
+  <div id="qbox"></div>
+  <div id="opts"></div>
+  <div id="res"></div>
+  <button class="btn" onclick="nextQ()">下一題</button>
 </div>
 
 <script>
-
 // 🔊 發音
 function speak(text){
-let u=new SpeechSynthesisUtterance(text);
-u.lang="ja-JP";
-speechSynthesis.cancel();
-speechSynthesis.speak(u);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
 }
 
 // ===== 資料 =====
-
-<script>
 const DATA = {
   kana: [
     { j:"あ", z:"a", k:"a" }, { j:"い", z:"i", k:"i" }, { j:"う", z:"u", k:"u" }, { j:"え", z:"e", k:"e" }, { j:"お", z:"o", k:"o" },
@@ -348,111 +345,133 @@ const DATA = {
   ]
 };
 
-const CATEGORY_NAMES = {
-  kana: "50音",
-  dakuon: "濁音",
-  handakuon: "半濁音",
-  youon: "拗音",
-  words: "單字",
-  places: "地名",
-  sentences: "句子",
-  dialog: "對話"
+const CAT = {
+  kana:"50音",
+  dakuon:"濁音",
+  handakuon:"半濁音",
+  youon:"拗音",
+  words:"單字",
+  places:"地名",
+  sentences:"句子",
+  dialog:"對話"
 };
- 
+
+// ===== 發音 =====
+function speak(text){
+  let u=new SpeechSynthesisUtterance(text);
+  u.lang="ja-JP";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
 // ===== 預覽 =====
 let pNow="words";
 
 function renderPreview(){
-let box=document.getElementById('pBox');
-box.innerHTML='';
-DATA[pNow].forEach(i=>{
-let d=document.createElement('div');
-d.className='card';
-d.innerHTML=`
-<div class="jp">${i.j}</div>
-<div class="zh">${i.z}</div>
-<button class="speak">🔊 播放</button>`;
-d.querySelector('.speak').onclick=()=>speak(i.j);
-box.appendChild(d);
-});
+  let box=document.getElementById('pBox');
+  box.innerHTML='';
+  DATA[pNow].forEach(i=>{
+    let d=document.createElement('div');
+    d.className='card';
+    d.innerHTML=`
+      <div class="jp">${i.j}</div>
+      <div class="zh">${i.z}</div>
+      ${i.k ? `<div class="kana">50音：${i.k}</div>` : ''}
+      <button class="speak">🔊 播放</button>`;
+    d.querySelector('.speak').onclick=()=>speak(i.j);
+    box.appendChild(d);
+  });
 }
 
 function renderPChips(){
-let box=document.getElementById('pChips');
-box.innerHTML='';
-Object.keys(DATA).forEach(k=>{
-let b=document.createElement('button');
-b.className='chip'+(pNow===k?' active':'');
-b.innerText=CAT[k];
-b.onclick=()=>{pNow=k;renderPChips();renderPreview();}
-box.appendChild(b);
-});
+  let box=document.getElementById('pChips');
+  box.innerHTML='';
+  Object.keys(DATA).forEach(k=>{
+    let b=document.createElement('button');
+    b.className='chip'+(pNow===k?' active':'');
+    b.innerText=CAT[k];
+    b.onclick=()=>{
+      pNow=k;
+      renderPChips();
+      renderPreview();
+    };
+    box.appendChild(b);
+  });
 }
 
 // ===== 測驗 =====
 let qNow="words",cur;
 
 function nextQ(){
-let pool=DATA[qNow];
-cur=pool[Math.floor(Math.random()*pool.length)];
+  let pool=DATA[qNow];
+  cur=pool[Math.floor(Math.random()*pool.length)];
 
-document.getElementById('qbox').innerHTML=`
-<div class="jp">${cur.j}</div>
-<button class="speak">🔊 播放</button>`;
-document.querySelector('#qbox .speak').onclick=()=>speak(cur.j);
+  document.getElementById('qbox').innerHTML=`
+    <div class="jp">${cur.j}</div>
+    ${cur.k ? `<div class="kana">50音：${cur.k}</div>` : ''}
+    <button class="speak">🔊 播放</button>`;
+  document.querySelector('#qbox .speak').onclick=()=>speak(cur.j);
 
-let opts=[cur.z];
-while(opts.length<4){
-let r=pool[Math.floor(Math.random()*pool.length)].z;
-if(!opts.includes(r))opts.push(r);
-}
+  let opts=[cur.z];
+  while(opts.length<4){
+    let r=pool[Math.floor(Math.random()*pool.length)].z;
+    if(!opts.includes(r)) opts.push(r);
+  }
 
-let box=document.getElementById('opts');
-box.innerHTML='';
-opts.sort(()=>Math.random()-0.5);
+  let box=document.getElementById('opts');
+  box.innerHTML='';
+  document.getElementById('res').innerHTML='';
+  opts.sort(()=>Math.random()-0.5);
 
-opts.forEach(o=>{
-let b=document.createElement('button');
-b.className='option';
-b.innerText=o;
-b.onclick=()=>{
-if(o===cur.z){
-b.classList.add('correct');
-document.getElementById('res').innerText="⭕ 正確";
-}else{
-b.classList.add('wrong');
-document.getElementById('res').innerText="❌ "+cur.z;
-}
-};
-box.appendChild(b);
-});
+  opts.forEach(o=>{
+    let b=document.createElement('button');
+    b.className='option';
+    b.innerText=o;
+    b.onclick=()=>{
+      document.querySelectorAll('.option').forEach(btn=>btn.disabled=true);
+      if(o===cur.z){
+        b.classList.add('correct');
+        document.getElementById('res').innerHTML="⭕ 正確";
+      }else{
+        b.classList.add('wrong');
+        document.getElementById('res').innerHTML="❌ 正解："+cur.z;
+      }
+    };
+    box.appendChild(b);
+  });
 }
 
 function renderQChips(){
-let box=document.getElementById('qChips');
-box.innerHTML='';
-Object.keys(DATA).forEach(k=>{
-let b=document.createElement('button');
-b.className='chip'+(qNow===k?' active':'');
-b.innerText=CAT[k];
-b.onclick=()=>{qNow=k;renderQChips();}
-box.appendChild(b);
-});
+  let box=document.getElementById('qChips');
+  box.innerHTML='';
+  Object.keys(DATA).forEach(k=>{
+    let b=document.createElement('button');
+    b.className='chip'+(qNow===k?' active':'');
+    b.innerText=CAT[k];
+    b.onclick=()=>{
+      qNow=k;
+      renderQChips();
+      document.getElementById('qbox').innerHTML=`<div class="jp">目前題庫：${CAT[k]}</div>`;
+      document.getElementById('opts').innerHTML='';
+      document.getElementById('res').innerHTML='';
+    };
+    box.appendChild(b);
+  });
 }
 
 // ===== 切換 =====
 function tab(e,t){
-document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-e.target.classList.add('active');
-document.getElementById('p').classList.toggle('hidden',t!=='p');
-document.getElementById('q').classList.toggle('hidden',t!=='q');
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('p').classList.toggle('hidden',t!=='p');
+  document.getElementById('q').classList.toggle('hidden',t!=='q');
 }
 
 // 初始化
 renderPChips();
 renderPreview();
 renderQChips();
-
+document.getElementById('qbox').innerHTML='<div class="jp">請選題庫後開始測驗</div>';
 </script>
 
 </body>
