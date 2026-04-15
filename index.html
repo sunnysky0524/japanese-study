@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sunny的日語學習App</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; }
+        .main-container { flex: 1; padding: 15px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+        .quiz-card { background: white; width: 100%; max-width: 450px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(214, 51, 132, 0.1); text-align: center; }
+        .badge { font-size: 0.75rem; background: #fbcfe8; color: #d63384; padding: 4px 12px; border-radius: 10px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        .question { font-size: 1.4rem; font-weight: bold; margin-bottom: 25px; color: #222; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        button { padding: 16px 8px; font-size: 1rem; border: 2px solid #fbcfe8; background: white; border-radius: 15px; color: #d63384; font-weight: 600; cursor: pointer; }
+        .next-btn { background: #d63384 !important; color: white !important; border: none; width: 100%; margin-top: 20px; padding: 15px; border-radius: 15px; font-size: 1.1rem; display: none; }
+        #result { margin-top: 20px; font-weight: bold; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div class="header">日語全書複習 (第2-13課)</div>
+    <div class="main-container">
+        <div class="quiz-card">
+            <div id="tag" class="badge">隨機複習</div>
+            <div id="q-text" class="question">點擊按鈕開始測驗</div>
+            <div id="options-box" class="options"></div>
+            <div id="result"></div>
+            <button id="next-btn" class="next-btn" onclick="renderQuestion()">下一題 ❯</button>
+        </div>
+    </div>
+    <script>
+        const quizBank = [
+            { t: "第2課", q: "「車站 (駅)」讀音？", c: "えき" },
+            { t: "第5課", q: "「夜市」讀音？", c: "よいち" },
+            { t: "第7課", q: "「新聞 (新聞)」讀音？", c: "しんぶん" },
+            { t: "第8課", q: "「牛奶 (牛乳)」讀音？", c: "ぎゅうにゅう" },
+            { t: "第9課", q: "「便利商店」日文？", c: "コンビニ" },
+            { t: "第11課", q: "「秋刀魚」讀音？", c: "さんま" },
+            { t: "第11課", q: "「長短音」大樓與啤酒哪個音長？", c: "啤酒" },
+            { t: "重音", q: "「富士山 (1)」屬於哪種重音型？", c: "頭高型" },
+            { t: "重音", q: "「電腦 (パソコン 0)」屬於哪種型？", c: "平板型" }
+        ];
+        let shuffled = []; let idx = 0; let score = 0;
+        function renderQuestion() {
+            if (idx === 0) { shuffled = [...quizBank].sort(() => Math.random() - 0.5); score = 0; }
+            if (idx >= shuffled.length) {
+                document.getElementById('q-text').innerText = "測驗結束！得分：" + score + "/" + shuffled.length;
+                document.getElementById('options-box').innerHTML = "";
+                document.getElementById('next-btn').innerText = "重新測驗";
+                idx = 0; return;
+            }
+            const item = shuffled[idx];
+            document.getElementById('tag').innerText = item.t;
+            document.getElementById('q-text').innerText = item.q;
+            const box = document.getElementById('options-box'); box.innerHTML = "";
+            document.getElementById('result').innerText = "";
+            document.getElementById('next-btn').style.display = "none";
+            let choices = [item.c];
+            while(choices.length < 4) {
+                let r = quizBank[Math.floor(Math.random() * quizBank.length)].c;
+                if(!choices.includes(r)) choices.push(r);
+            }
+            choices.sort(() => Math.random() - 0.5).forEach(choice => {
+                const btn = document.createElement('button'); btn.innerText = choice;
+                btn.onclick = () => {
+                    const res = document.getElementById('result');
+                    if (choice === item.c) { res.innerText = "⭕ 正確"; res.style.color = "green"; score++; }
+                    else { res.innerText = "❌ 正確是：" + item.c; res.style.color = "red"; }
+                    Array.from(box.children).forEach(b => b.onclick = null);
+                    document.getElementById('next-btn').style.display = "block";
+                    idx++;
+                };
+                box.appendChild(btn);
+            });
+        }
+        renderQuestion();
+    </script>
+</body>
+</html>
