@@ -1,777 +1,551 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sunny 日文考試版</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "PingFang TC", "Noto Sans TC", sans-serif;
-      background: linear-gradient(180deg, #fff7fb 0%, #fff1f6 100%);
-      color: #4a3b44;
-    }
-    .app { max-width: 980px; margin: 0 auto; padding: 16px; }
-    .header {
-      background: linear-gradient(135deg, #ff7eb6, #ff95c8);
-      color: white;
-      border-radius: 24px;
-      padding: 18px 20px;
-      box-shadow: 0 10px 25px rgba(255, 126, 182, 0.25);
-      margin-bottom: 16px;
-    }
-    .header h1 { margin: 0 0 6px; font-size: 1.4rem; }
-    .header p { margin: 0; opacity: 0.95; font-size: 0.95rem; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sunny 日文學習神器</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #fff4f8;
+    color: #4a3b44;
+  }
+  .header {
+    background: #ff6fa5;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-weight: bold;
+    font-size: 20px;
+  }
+  .tabs {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff4f8;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: #ffd6e8;
+    font-weight: bold;
+  }
+  .tab.active {
+    background: #ff6fa5;
+    color: white;
+  }
+  .panel { padding: 15px; }
+  .hidden { display: none; }
 
-    .tabs, .chips, .mode-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .chip {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: #ffe4ef;
+    color: #c63f7d;
+    font-weight: bold;
+  }
+  .chip.active {
+    background: #ff6fa5;
+    color: white;
+  }
 
-    .tab, .chip, .mode-tab, .btn {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: 0.2s ease;
-    }
+  .section-title {
+    font-weight: bold;
+    color: #ff4f95;
+    margin: 16px 0 10px;
+    font-size: 18px;
+  }
 
-    .tab, .mode-tab {
-      background: white;
-      color: #d94a8c;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .jp {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.7;
+  }
+  .zh {
+    color: #ff4f95;
+    line-height: 1.7;
+    margin-top: 4px;
+  }
+  .kana {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.7;
+    margin-top: 4px;
+  }
 
-    .tab.active, .mode-tab.active {
-      background: #ff6da9;
-      color: white;
-    }
+  .option {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid pink;
+    background: white;
+    font-size: 15px;
+  }
+  .correct { background: #d4ffd4; }
+  .wrong { background: #ffd4d4; }
 
-    .chip {
-      background: #ffe4ef;
-      color: #c63f7d;
-      font-size: 0.92rem;
-    }
+  .btn {
+    margin-top: 10px;
+    padding: 12px;
+    width: 100%;
+    background: #ff6fa5;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+  }
 
-    .chip.active {
-      background: #ffd0e4;
-      outline: 2px solid #ff8dbc;
-    }
-
-    .panel {
-      background: rgba(255,255,255,0.92);
-      border-radius: 24px;
-      padding: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      margin: 0 0 12px;
-      color: #d94a8c;
-      font-size: 1.05rem;
-    }
-
-    .hidden { display: none; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-      border: 1px solid #ffe1ed;
-    }
-
-    .jp {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #5d3b4e;
-      margin-bottom: 6px;
-      line-height: 1.6;
-    }
-
-    .zh {
-      color: #d94a8c;
-      font-weight: 700;
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
-
-    .sub {
-      color: #8a6b7a;
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
-
-    .speak {
-      margin-top: 10px;
-      background: #fff0f7;
-      color: #c63f7d;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .quiz-box { text-align: center; }
-
-    .quiz-meta {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #8a6b7a;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .question {
-      font-size: 1.8rem;
-      font-weight: 900;
-      margin: 18px 0 8px;
-      color: #5b3750;
-      word-break: break-word;
-      line-height: 1.6;
-    }
-
-    .hint {
-      color: #a1768e;
-      min-height: 24px;
-      margin-bottom: 14px;
-      line-height: 1.6;
-    }
-
-    .options {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .option {
-      background: white;
-      border: 2px solid #ffd7e8;
-      border-radius: 16px;
-      padding: 14px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #6a4558;
-      line-height: 1.6;
-    }
-
-    .option.correct {
-      background: #e8fff1;
-      border-color: #56c288;
-      color: #22734d;
-    }
-
-    .option.wrong {
-      background: #fff1f1;
-      border-color: #e07272;
-      color: #a43f3f;
-    }
-
-    .result {
-      margin-top: 14px;
-      min-height: 24px;
-      font-weight: 800;
-    }
-
-    .answer {
-      margin-top: 10px;
-      color: #7c6070;
-      line-height: 1.8;
-      text-align: left;
-      background: #fff8fb;
-      border-radius: 16px;
-      padding: 12px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      background: #ff78b0;
-      color: white;
-      box-shadow: 0 6px 16px rgba(255,120,176,0.25);
-      border:none;
-    }
-
-    .btn.secondary {
-      background: #ffe4ef;
-      color: #c63f7d;
-      box-shadow: none;
-      border:none;
-    }
-
-    .wrong-item {
-      background: #fff8fb;
-      border: 1px solid #ffd8e8;
-      border-radius: 16px;
-      padding: 12px;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
-
-    .fill-blank-word {
-      color: #ff4f95;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    @media (min-width: 700px) {
-      .options { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+  .meta {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 10px;
+    line-height: 1.7;
+  }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <h1>🌸 Sunny 日文考試版</h1>
-      <p>單字・句子・翻譯・50音重點練習</p>
-    </div>
 
-    <div class="tabs" id="mainTabs">
-      <button class="tab active" data-tab="preview">📖 預覽內容</button>
-      <button class="tab" data-tab="quiz">📝 考試模式</button>
-    </div>
+<div class="header">🌸 Sunny 日文學習神器</div>
 
-    <div id="previewPanel" class="panel">
-      <h2 class="section-title">📚 預覽區</h2>
-      <div class="chips" id="previewCategoryChips"></div>
-      <div style="height:12px;"></div>
-      <div class="grid" id="previewGrid"></div>
-    </div>
+<div class="tabs">
+  <button class="tab active" onclick="switchMainTab(event, 'preview')">📖 預覽</button>
+  <button class="tab" onclick="switchMainTab(event, 'quiz')">📝 測驗</button>
+</div>
 
-    <div id="quizPanel" class="panel hidden">
-      <h2 class="section-title">📝 題庫與模式</h2>
-      <div class="chips" id="quizCategoryChips"></div>
-      <div style="height:10px;"></div>
-      <div class="mode-tabs" id="quizModeTabs"></div>
+<div id="previewPanel" class="panel">
+  <div class="chips" id="previewChips"></div>
+  <div id="previewBox"></div>
+</div>
 
-      <div class="quiz-box" style="margin-top:16px;">
-        <div class="quiz-meta">
-          <div>目前：<span id="quizCategoryText">未選擇</span></div>
-          <div>模式：<span id="quizModeText">未選擇</span></div>
-          <div>分數：<span id="scoreText">0 / 0</span></div>
-        </div>
+<div id="quizPanel" class="panel hidden">
+  <div class="chips" id="quizChips"></div>
+  <div class="meta" id="quizMeta">請先選類別，再按「開始測驗」</div>
+  <div id="qbox" class="card">請點擊開始測驗</div>
+  <div id="opts"></div>
+  <div id="res" class="meta"></div>
+  <button class="btn" onclick="startQuiz()">開始測驗 / 下一題</button>
+</div>
 
-        <div class="question" id="questionBox">點擊「開始測驗」</div>
-        <div class="hint" id="hintBox"></div>
-        <div class="options" id="optionsBox"></div>
-        <div class="result" id="resultBox"></div>
-        <div class="answer" id="answerBox" style="display:none;"></div>
+<script>
+const DATA = {
+  kana: [
+    { j:"あ", z:"a", k:"a" }, { j:"い", z:"i", k:"i" }, { j:"う", z:"u", k:"u" }, { j:"え", z:"e", k:"e" }, { j:"お", z:"o", k:"o" },
+    { j:"か", z:"ka", k:"ka" }, { j:"き", z:"ki", k:"ki" }, { j:"く", z:"ku", k:"ku" }, { j:"け", z:"ke", k:"ke" }, { j:"こ", z:"ko", k:"ko" },
+    { j:"さ", z:"sa", k:"sa" }, { j:"し", z:"shi", k:"shi" }, { j:"す", z:"su", k:"su" }, { j:"せ", z:"se", k:"se" }, { j:"そ", z:"so", k:"so" },
+    { j:"た", z:"ta", k:"ta" }, { j:"ち", z:"chi", k:"chi" }, { j:"つ", z:"tsu", k:"tsu" }, { j:"て", z:"te", k:"te" }, { j:"と", z:"to", k:"to" },
+    { j:"な", z:"na", k:"na" }, { j:"に", z:"ni", k:"ni" }, { j:"ぬ", z:"nu", k:"nu" }, { j:"ね", z:"ne", k:"ne" }, { j:"の", z:"no", k:"no" },
+    { j:"は", z:"ha", k:"ha" }, { j:"ひ", z:"hi", k:"hi" }, { j:"ふ", z:"fu", k:"fu" }, { j:"へ", z:"he", k:"he" }, { j:"ほ", z:"ho", k:"ho" },
+    { j:"ま", z:"ma", k:"ma" }, { j:"み", z:"mi", k:"mi" }, { j:"む", z:"mu", k:"mu" }, { j:"め", z:"me", k:"me" }, { j:"も", z:"mo", k:"mo" },
+    { j:"や", z:"ya", k:"ya" }, { j:"ゆ", z:"yu", k:"yu" }, { j:"よ", z:"yo", k:"yo" },
+    { j:"ら", z:"ra", k:"ra" }, { j:"り", z:"ri", k:"ri" }, { j:"る", z:"ru", k:"ru" }, { j:"れ", z:"re", k:"re" }, { j:"ろ", z:"ro", k:"ro" },
+    { j:"わ", z:"wa", k:"wa" }, { j:"を", z:"wo", k:"wo" }, { j:"ん", z:"n", k:"n" }
+  ],
 
-        <div class="actions">
-          <button class="btn" id="startQuizBtn">開始測驗</button>
-          <button class="btn secondary" id="nextBtn" style="display:none;">下一題 ❯</button>
-          <button class="btn secondary" id="speakBtn">🔊 發音</button>
-          <button class="btn secondary" id="resetBtn">重新開始</button>
-        </div>
-      </div>
-    </div>
+  dakuon: [
+    { j:"が", z:"ga", k:"ga" }, { j:"ぎ", z:"gi", k:"gi" }, { j:"ぐ", z:"gu", k:"gu" }, { j:"げ", z:"ge", k:"ge" }, { j:"ご", z:"go", k:"go" },
+    { j:"ざ", z:"za", k:"za" }, { j:"じ", z:"ji", k:"ji" }, { j:"ず", z:"zu", k:"zu" }, { j:"ぜ", z:"ze", k:"ze" }, { j:"ぞ", z:"zo", k:"zo" },
+    { j:"だ", z:"da", k:"da" }, { j:"ぢ", z:"ji", k:"ji" }, { j:"づ", z:"zu", k:"zu" }, { j:"で", z:"de", k:"de" }, { j:"ど", z:"do", k:"do" },
+    { j:"ば", z:"ba", k:"ba" }, { j:"び", z:"bi", k:"bi" }, { j:"ぶ", z:"bu", k:"bu" }, { j:"べ", z:"be", k:"be" }, { j:"ぼ", z:"bo", k:"bo" }
+  ],
 
-    <div class="panel">
-      <h2 class="section-title">💗 錯題本</h2>
-      <div id="wrongList">目前沒有錯題</div>
-    </div>
-  </div>
+  handakuon: [
+    { j:"ぱ", z:"pa", k:"pa" }, { j:"ぴ", z:"pi", k:"pi" }, { j:"ぷ", z:"pu", k:"pu" }, { j:"ぺ", z:"pe", k:"pe" }, { j:"ぽ", z:"po", k:"po" }
+  ],
 
-  <script>
-    const DATA = {
-      kana: [
-        { j: "あ", z: "a", r: "a" }, { j: "い", z: "i", r: "i" }, { j: "う", z: "u", r: "u" }, { j: "え", z: "e", r: "e" }, { j: "お", z: "o", r: "o" },
-        { j: "か", z: "ka", r: "ka" }, { j: "き", z: "ki", r: "ki" }, { j: "く", z: "ku", r: "ku" }, { j: "け", z: "ke", r: "ke" }, { j: "こ", z: "ko", r: "ko" },
-        { j: "さ", z: "sa", r: "sa" }, { j: "し", z: "shi", r: "shi" }, { j: "す", z: "su", r: "su" }, { j: "せ", z: "se", r: "se" }, { j: "そ", z: "so", r: "so" },
-        { j: "た", z: "ta", r: "ta" }, { j: "ち", z: "chi", r: "chi" }, { j: "つ", z: "tsu", r: "tsu" }, { j: "て", z: "te", r: "te" }, { j: "と", z: "to", r: "to" },
-        { j: "な", z: "na", r: "na" }, { j: "に", z: "ni", r: "ni" }, { j: "ぬ", z: "nu", r: "nu" }, { j: "ね", z: "ne", r: "ne" }, { j: "の", z: "no", r: "no" },
-        { j: "は", z: "ha", r: "ha" }, { j: "ひ", z: "hi", r: "hi" }, { j: "ふ", z: "fu", r: "fu" }, { j: "へ", z: "he", r: "he" }, { j: "ほ", z: "ho", r: "ho" },
-        { j: "ま", z: "ma", r: "ma" }, { j: "み", z: "mi", r: "mi" }, { j: "む", z: "mu", r: "mu" }, { j: "め", z: "me", r: "me" }, { j: "も", z: "mo", r: "mo" },
-        { j: "や", z: "ya", r: "ya" }, { j: "ゆ", z: "yu", r: "yu" }, { j: "よ", z: "yo", r: "yo" },
-        { j: "ら", z: "ra", r: "ra" }, { j: "り", z: "ri", r: "ri" }, { j: "る", z: "ru", r: "ru" }, { j: "れ", z: "re", r: "re" }, { j: "ろ", z: "ro", r: "ro" },
-        { j: "わ", z: "wa", r: "wa" }, { j: "を", z: "wo", r: "wo" }, { j: "ん", z: "n", r: "n" }
-      ],
-      dakuon: [
-        { j: "が", z: "ga", r: "ga" }, { j: "ぎ", z: "gi", r: "gi" }, { j: "ぐ", z: "gu", r: "gu" }, { j: "げ", z: "ge", r: "ge" }, { j: "ご", z: "go", r: "go" },
-        { j: "ざ", z: "za", r: "za" }, { j: "じ", z: "ji", r: "ji" }, { j: "ず", z: "zu", r: "zu" }, { j: "ぜ", z: "ze", r: "ze" }, { j: "ぞ", z: "zo", r: "zo" },
-        { j: "だ", z: "da", r: "da" }, { j: "ぢ", z: "ji", r: "ji" }, { j: "づ", z: "zu", r: "zu" }, { j: "で", z: "de", r: "de" }, { j: "ど", z: "do", r: "do" },
-        { j: "ば", z: "ba", r: "ba" }, { j: "び", z: "bi", r: "bi" }, { j: "ぶ", z: "bu", r: "bu" }, { j: "べ", z: "be", r: "be" }, { j: "ぼ", z: "bo", r: "bo" }
-      ],
-      handakuon: [
-        { j: "ぱ", z: "pa", r: "pa" }, { j: "ぴ", z: "pi", r: "pi" }, { j: "ぷ", z: "pu", r: "pu" }, { j: "ぺ", z: "pe", r: "pe" }, { j: "ぽ", z: "po", r: "po" }
-      ],
-      youon: [
-        { j: "きゃ", z: "kya", r: "kya" }, { j: "きゅ", z: "kyu", r: "kyu" }, { j: "きょ", z: "kyo", r: "kyo" },
-        { j: "しゃ", z: "sha", r: "sha" }, { j: "しゅ", z: "shu", r: "shu" }, { j: "しょ", z: "sho", r: "sho" },
-        { j: "ちゃ", z: "cha", r: "cha" }, { j: "ちゅ", z: "chu", r: "chu" }, { j: "ちょ", z: "cho", r: "cho" },
-        { j: "にゃ", z: "nya", r: "nya" }, { j: "にゅ", z: "nyu", r: "nyu" }, { j: "にょ", z: "nyo", r: "nyo" },
-        { j: "ひゃ", z: "hya", r: "hya" }, { j: "ひゅ", z: "hyu", r: "hyu" }, { j: "ひょ", z: "hyo", r: "hyo" },
-        { j: "みゃ", z: "mya", r: "mya" }, { j: "みゅ", z: "myu", r: "myu" }, { j: "みょ", z: "myo", r: "myo" },
-        { j: "りゃ", z: "rya", r: "rya" }, { j: "りゅ", z: "ryu", r: "ryu" }, { j: "りょ", z: "ryo", r: "ryo" },
-        { j: "ぎゃ", z: "gya", r: "gya" }, { j: "ぎゅ", z: "gyu", r: "gyu" }, { j: "ぎょ", z: "gyo", r: "gyo" },
-        { j: "じゃ", z: "ja", r: "ja" }, { j: "じゅ", z: "ju", r: "ju" }, { j: "じょ", z: "jo", r: "jo" },
-        { j: "びゃ", z: "bya", r: "bya" }, { j: "びゅ", z: "byu", r: "byu" }, { j: "びょ", z: "byo", r: "byo" },
-        { j: "ぴゃ", z: "pya", r: "pya" }, { j: "ぴゅ", z: "pyu", r: "pyu" }, { j: "ぴょ", z: "pyo", r: "pyo" }
-      ],
-      words: [
-        { j: "スマホ", z: "手機" }, { j: "パソコン", z: "電腦" }, { j: "タクシー", z: "計程車" },
-        { j: "デパート", z: "百貨公司" }, { j: "トイレ", z: "洗手間" }, { j: "スーパー", z: "超市" },
-        { j: "アイスクリーム", z: "冰淇淋" }, { j: "ケーキ", z: "蛋糕" }, { j: "コーヒー", z: "咖啡" },
-        { j: "パン", z: "麵包" }, { j: "ノート", z: "筆記本" }, { j: "カメラ", z: "相機" },
-        { j: "スカート", z: "裙子" }, { j: "バナナ", z: "香蕉" }, { j: "コーラ", z: "可樂" },
-        { j: "マヨネーズ", z: "美乃滋" }, { j: "がくせい", z: "學生" }, { j: "せんせい", z: "老師" },
-        { j: "かいしゃいん", z: "上班族" }, { j: "エンジニア", z: "工程師" }, { j: "きって", z: "郵票" }, { j: "きっぷ", z: "車票" }
-      ],
-      sentences: [
-        { j: "はじめまして。", z: "初次見面。" },
-        { j: "どうぞ よろしくお願いします。", z: "請多指教。" },
-        { j: "いくらですか。", z: "多少錢呢？" },
-        { j: "全部で いくらですか。", z: "總共多少錢呢？" },
-        { j: "これを ください。", z: "請給我這個。" },
-        { j: "台湾のマンゴーはおいしいですよ。", z: "台灣的芒果很好吃喔。" },
-        { j: "少々お待ちください。", z: "請稍等一下。" },
-        { j: "お国は どちらですか。", z: "你是哪國人？" },
-        { j: "おはようございます。", z: "早安。" },
-        { j: "こんにちは。", z: "你好。" },
-        { j: "こんばんは。", z: "晚安。" },
-        { j: "ありがとうございます。", z: "謝謝你。" }
-      ],
-      dialog: [
-        { j: "A：はじめまして。B：はじめまして。", z: "A：初次見面。B：初次見面。" },
-        { j: "A：どうぞよろしくお願いします。B：こちらこそ、よろしくお願いします。", z: "A：請多指教。B：我才要請你多指教。" },
-        { j: "A：いくらですか。B：200円です。", z: "A：多少錢呢？ B：200日圓。" },
-        { j: "A：これをください。B：はい、どうぞ。", z: "A：請給我這個。B：好的，請。" }
-      ]
-    };
+  youon: [
+    { j:"きゃ", z:"kya", k:"kya" }, { j:"きゅ", z:"kyu", k:"kyu" }, { j:"きょ", z:"kyo", k:"kyo" },
+    { j:"しゃ", z:"sha", k:"sha" }, { j:"しゅ", z:"shu", k:"shu" }, { j:"しょ", z:"sho", k:"sho" },
+    { j:"ちゃ", z:"cha", k:"cha" }, { j:"ちゅ", z:"chu", k:"chu" }, { j:"ちょ", z:"cho", k:"cho" },
+    { j:"にゃ", z:"nya", k:"nya" }, { j:"にゅ", z:"nyu", k:"nyu" }, { j:"にょ", z:"nyo", k:"nyo" },
+    { j:"ひゃ", z:"hya", k:"hya" }, { j:"ひゅ", z:"hyu", k:"hyu" }, { j:"ひょ", z:"hyo", k:"hyo" },
+    { j:"みゃ", z:"mya", k:"mya" }, { j:"みゅ", z:"myu", k:"myu" }, { j:"みょ", z:"myo", k:"myo" },
+    { j:"りゃ", z:"rya", k:"rya" }, { j:"りゅ", z:"ryu", k:"ryu" }, { j:"りょ", z:"ryo", k:"ryo" },
+    { j:"ぎゃ", z:"gya", k:"gya" }, { j:"ぎゅ", z:"gyu", k:"gyu" }, { j:"ぎょ", z:"gyo", k:"gyo" },
+    { j:"じゃ", z:"ja", k:"ja" }, { j:"じゅ", z:"ju", k:"ju" }, { j:"じょ", z:"jo", k:"jo" },
+    { j:"びゃ", z:"bya", k:"bya" }, { j:"びゅ", z:"byu", k:"byu" }, { j:"びょ", z:"byo", k:"byo" },
+    { j:"ぴゃ", z:"pya", k:"pya" }, { j:"ぴゅ", z:"pyu", k:"pyu" }, { j:"ぴょ", z:"pyo", k:"pyo" }
+  ],
 
-    const categoryNames = {
-      kana: "50音",
-      dakuon: "濁音",
-      handakuon: "半濁音",
-      youon: "拗音",
-      words: "單字",
-      sentences: "句子",
-      dialog: "對話"
-    };
+  words: [
+    { j: "いえ", z: "家", k: "いえ" },
+    { j: "えき", z: "車站", k: "えき" },
+    { j: "かき", z: "柿子", k: "かき" },
+    { j: "きく", z: "菊花", k: "きく" },
+    { j: "いけ", z: "池塘", k: "いけ" },
+    { j: "こい", z: "鯉魚", k: "こい" },
 
-    const quizModes = [
-      { key: "jp_to_zh", label: "日→中" },
-      { key: "zh_to_jp", label: "中→日" },
-      { key: "kana_to_romaji", label: "假名→拼音" },
-      { key: "fill_blank", label: "句子填空" },
-      { key: "mixed", label: "混合測驗" }
-    ];
+    { j: "おさけ", z: "酒", k: "おさけ" },
+    { j: "すし", z: "壽司", k: "すし" },
+    { j: "しか", z: "鹿", k: "しか" },
+    { j: "す", z: "醋", k: "す" },
+    { j: "しいたけ", z: "香菇", k: "しいたけ" },
+    { j: "くつ", z: "鞋子", k: "くつ" },
 
-    let previewCategory = "words";
-    let quizCategory = "words";
-    let quizMode = "jp_to_zh";
-    let currentQuestion = null;
-    let score = 0;
-    let total = 0;
-    let wrongBook = [];
+    { j: "なし", z: "梨子", k: "なし" },
+    { j: "さかな", z: "魚", k: "さかな" },
+    { j: "いぬ", z: "狗", k: "いぬ" },
+    { j: "ねこ", z: "貓", k: "ねこ" },
+    { j: "はな", z: "花", k: "はな" },
+    { j: "はと", z: "鴿子", k: "はと" },
 
-    function speakJa(text) {
-      if (!text) return;
-      const ut = new SpeechSynthesisUtterance(text);
-      ut.lang = "ja-JP";
-      ut.rate = 0.85;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(ut);
+    { j: "うま", z: "馬", k: "うま" },
+    { j: "さしみ", z: "生魚片", k: "さしみ" },
+    { j: "まち", z: "城市", k: "まち" },
+    { j: "もも", z: "桃子", k: "もも" },
+    { j: "やま", z: "山", k: "やま" },
+    { j: "ゆ", z: "熱水", k: "ゆ" },
+    { j: "みみ", z: "耳朵", k: "みみ" },
+    { j: "むし", z: "蟲子", k: "むし" },
+    { j: "め", z: "眼睛", k: "め" },
+    { j: "やさい", z: "蔬菜", k: "やさい" },
+    { j: "やたい", z: "攤販", k: "やたい" },
+    { j: "よこ", z: "旁邊", k: "よこ" },
+
+    { j: "さくら", z: "櫻花", k: "さくら" },
+    { j: "おてあらい", z: "洗手間", k: "おてあらい" },
+    { j: "くるま", z: "車子", k: "くるま" },
+    { j: "かわ", z: "河川", k: "かわ" },
+    { j: "みかん", z: "橘子", k: "みかん" },
+    { j: "さんま", z: "秋刀魚", k: "さんま" },
+    { j: "くすり", z: "藥", k: "くすり" },
+    { j: "よる", z: "晚上", k: "よる" },
+    { j: "おふろ", z: "浴室", k: "おふろ" },
+    { j: "かれ", z: "他", k: "かれ" },
+    { j: "わたし", z: "我", k: "わたし" },
+    { j: "にわ", z: "庭院", k: "にわ" },
+
+    { j: "らく", z: "輕鬆", k: "らく" },
+    { j: "りす", z: "松鼠", k: "りす" },
+    { j: "ろく", z: "六", k: "ろく" },
+    { j: "からい", z: "辣", k: "からい" },
+    { j: "きいろい", z: "黃色的", k: "きいろい" },
+    { j: "くもり", z: "陰天", k: "くもり" },
+    { j: "くらい", z: "昏暗", k: "くらい" },
+    { j: "くろい", z: "黑色的", k: "くろい" },
+    { j: "こちら", z: "這邊", k: "こちら" },
+    { j: "となり", z: "旁邊", k: "となり" },
+    { j: "とり", z: "鳥", k: "とり" },
+    { j: "とりにく", z: "雞肉", k: "とりにく" },
+    { j: "ふるい", z: "舊的", k: "ふるい" },
+    { j: "はる", z: "春天", k: "はる" },
+    { j: "これ", z: "這個", k: "これ" },
+    { j: "しろい", z: "白色的", k: "しろい" },
+    { j: "ひろい", z: "寬廣", k: "ひろい" },
+    { j: "まるい", z: "圓的", k: "まるい" },
+    { j: "まつり", z: "祭典", k: "まつり" },
+    { j: "わかい", z: "年輕", k: "わかい" },
+    { j: "わるい", z: "不好", k: "わるい" },
+
+    { j: "スマホ", z: "手機", k: "すまほ" },
+    { j: "パソコン", z: "電腦", k: "ぱそこん" },
+    { j: "タクシー", z: "計程車", k: "たくしー" },
+    { j: "デパート", z: "百貨公司", k: "でぱーと" },
+    { j: "トイレ", z: "洗手間", k: "といれ" },
+    { j: "スーパー", z: "超市", k: "すーぱー" },
+    { j: "アイスクリーム", z: "冰淇淋", k: "あいすくりーむ" },
+    { j: "ケーキ", z: "蛋糕", k: "けーき" },
+    { j: "コーヒー", z: "咖啡", k: "こーひー" },
+    { j: "パン", z: "麵包", k: "ぱん" },
+    { j: "ノート", z: "筆記本", k: "のーと" },
+    { j: "カメラ", z: "相機", k: "かめら" },
+    { j: "スカート", z: "裙子", k: "すかーと" },
+    { j: "バナナ", z: "香蕉", k: "ばなな" },
+    { j: "コーラ", z: "可樂", k: "こーら" },
+    { j: "マヨネーズ", z: "美乃滋", k: "まよねーず" },
+    { j: "がくせい", z: "學生", k: "がくせい" },
+    { j: "せんせい", z: "老師", k: "せんせい" },
+    { j: "かいしゃいん", z: "上班族", k: "かいしゃいん" },
+    { j: "エンジニア", z: "工程師", k: "えんじにあ" },
+    { j: "きって", z: "郵票", k: "きって" },
+    { j: "きっぷ", z: "車票", k: "きっぷ" }
+  ],
+
+  places: [
+    { j: "台湾", z: "台灣", k: "たいわん" },
+    { j: "日本", z: "日本", k: "にほん" },
+    { j: "アメリカ", z: "美國", k: "あめりか" },
+    { j: "ニューヨーク", z: "紐約", k: "にゅーよーく" },
+    { j: "ロンドン", z: "倫敦", k: "ろんどん" },
+    { j: "バンコク", z: "曼谷", k: "ばんこく" },
+    { j: "ソウル", z: "首爾", k: "そうる" },
+    { j: "富士山", z: "富士山", k: "ふじさん" },
+    { j: "日本人", z: "日本人", k: "にほんじん" },
+    { j: "台湾人", z: "台灣人", k: "たいわんじん" }
+  ],
+
+  sentences: [
+    { j: "おいしい！", z: "好吃！", k: "おいしい！" },
+    { j: "おいしいね。", z: "很好吃呢。", k: "おいしいね。" },
+    { j: "大きい！", z: "好大！", k: "おおきい！" },
+    { j: "大きいね。", z: "好大呢。", k: "おおきいね。" },
+    { j: "小さい！", z: "好小！", k: "ちいさい！" },
+    { j: "小さいね。", z: "好小呢。", k: "ちいさいね。" },
+
+    { j: "安い！", z: "好便宜！", k: "やすい！" },
+    { j: "安いね。", z: "很便宜呢。", k: "やすいね。" },
+    { j: "高い！", z: "好貴！", k: "たかい！" },
+    { j: "高いね。", z: "很貴呢。", k: "たかいね。" },
+    { j: "いい気持ち！", z: "真舒服！", k: "いいきもち！" },
+    { j: "気持ちいいね。", z: "很舒服呢。", k: "きもちいいね。" },
+
+    { j: "いいお天気！", z: "好天氣！", k: "いいおてんき！" },
+    { j: "いいお天気ですね。", z: "天氣真好呢。", k: "いいおてんきですね。" },
+    { j: "暑い！", z: "好熱！", k: "あつい！" },
+    { j: "暑いですね。", z: "很熱呢。", k: "あついですね。" },
+    { j: "寒い！", z: "好冷！", k: "さむい！" },
+    { j: "寒いですね。", z: "很冷呢。", k: "さむいですね。" },
+    { j: "涼しい！", z: "好涼爽！", k: "すずしい！" },
+    { j: "涼しいですね。", z: "很涼爽呢。", k: "すずしいですね。" },
+
+    { j: "おはようございます。", z: "早安。", k: "おはようございます。" },
+    { j: "おはよう。", z: "早啊。", k: "おはよう。" },
+    { j: "こんにちは。", z: "你好。", k: "こんにちは。" },
+    { j: "こんばんは。", z: "晚安。", k: "こんばんは。" },
+    { j: "お元気ですか。", z: "你好嗎？", k: "おげんきですか。" },
+    { j: "おかげさまで、元気です。", z: "托你的福，我很好。", k: "おかげさまで、げんきです。" },
+
+    { j: "すみません。", z: "不好意思。", k: "すみません。" },
+    { j: "大丈夫ですよ。", z: "沒關係喔。", k: "だいじょうぶですよ。" },
+    { j: "ごめんなさい。", z: "對不起。", k: "ごめんなさい。" },
+    { j: "いいえ、気にしないで。", z: "不，別在意。", k: "いいえ、きにしないで。" },
+    { j: "本当にすみません。", z: "真的很抱歉。", k: "ほんとうにすみません。" },
+    { j: "かまいませんよ。", z: "沒關係喔。", k: "かまいませんよ。" },
+
+    { j: "お願いします。", z: "拜託了。", k: "おねがいします。" },
+    { j: "これをお願いします。", z: "請給我這個。", k: "これをおねがいします。" },
+    { j: "もう一度お願いします。", z: "請再一次。", k: "もういちどおねがいします。" },
+
+    { j: "ありがとうございます。", z: "謝謝你。", k: "ありがとうございます。" },
+    { j: "どういたしまして。", z: "不客氣。", k: "どういたしまして。" },
+
+    { j: "はじめまして。", z: "初次見面。", k: "はじめまして。" },
+    { j: "どうぞ よろしくお願いします。", z: "請多指教。", k: "どうぞ よろしく おねがいします。" },
+    { j: "いくらですか。", z: "多少錢呢？", k: "いくらですか。" },
+    { j: "全部で いくらですか。", z: "總共多少錢呢？", k: "ぜんぶで いくらですか。" },
+    { j: "これを ください。", z: "請給我這個。", k: "これを ください。" },
+    { j: "台湾のマンゴーはおいしいですよ。", z: "台灣的芒果很好吃喔。", k: "たいわんの まんごーは おいしいですよ。" },
+    { j: "少々お待ちください。", z: "請稍等一下。", k: "しょうしょう おまちください。" },
+    { j: "お国は どちらですか。", z: "你是哪國人？", k: "おくには どちらですか。" }
+  ],
+
+  dialog: [
+    {
+      j: "A：おはようございます。B：おはようございます。",
+      z: "A：早安。B：早安。",
+      k: "A：おはようございます。B：おはようございます。"
+    },
+    {
+      j: "A：こんにちは。B：こんにちは。",
+      z: "A：你好。B：你好。",
+      k: "A：こんにちは。B：こんにちは。"
+    },
+    {
+      j: "A：こんばんは。B：こんばんは。",
+      z: "A：晚安。B：晚安。",
+      k: "A：こんばんは。B：こんばんは。"
+    },
+    {
+      j: "A：お元気ですか。B：おかげさまで、元気です。",
+      z: "A：你好嗎？ B：托你的福，我很好。",
+      k: "A：おげんきですか。B：おかげさまで、げんきです。"
+    },
+    {
+      j: "A：すみません。B：大丈夫ですよ。",
+      z: "A：不好意思。B：沒關係喔。",
+      k: "A：すみません。B：だいじょうぶですよ。"
+    },
+    {
+      j: "A：ごめんなさい。B：いいえ、気にしないで。",
+      z: "A：對不起。B：不，別在意。",
+      k: "A：ごめんなさい。B：いいえ、きにしないで。"
+    },
+    {
+      j: "A：本当にすみません。B：かまいませんよ。",
+      z: "A：真的很抱歉。B：沒關係喔。",
+      k: "A：ほんとうにすみません。B：かまいませんよ。"
+    },
+    {
+      j: "A：お願いします。B：はい。",
+      z: "A：拜託了。B：好的。",
+      k: "A：おねがいします。B：はい。"
+    },
+    {
+      j: "A：これをお願いします。B：これですね。はい、どうぞ。",
+      z: "A：請給我這個。B：這個對吧。好的，請。",
+      k: "A：これをおねがいします。B：これですね。はい、どうぞ。"
+    },
+    {
+      j: "A：もう一度お願いします。B：はい、わかりました。",
+      z: "A：請再一次。B：好的，我知道了。",
+      k: "A：もういちどおねがいします。B：はい、わかりました。"
+    },
+    {
+      j: "A：ありがとうございます。B：どういたしまして。",
+      z: "A：謝謝你。B：不客氣。",
+      k: "A：ありがとうございます。B：どういたしまして。"
+    },
+    {
+      j: "A：はじめまして。B：はじめまして。",
+      z: "A：初次見面。B：初次見面。",
+      k: "A：はじめまして。B：はじめまして。"
+    },
+    {
+      j: "A：どうぞよろしくお願いします。B：こちらこそ、よろしくお願いします。",
+      z: "A：請多指教。B：我才要請你多指教。",
+      k: "A：どうぞよろしく おねがいします。B：こちらこそ、よろしく おねがいします。"
+    },
+    {
+      j: "A：いくらですか。B：200円です。",
+      z: "A：多少錢呢？ B：200日圓。",
+      k: "A：いくらですか。B：にひゃくえんです。"
+    },
+    {
+      j: "A：これをください。B：はい、どうぞ。",
+      z: "A：請給我這個。B：好的，請。",
+      k: "A：これをください。B：はい、どうぞ。"
     }
+  ]
+};
 
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+const CATEGORY_NAMES = {
+  kana: "50音",
+  dakuon: "濁音",
+  handakuon: "半濁音",
+  youon: "拗音",
+  words: "單字",
+  places: "地名",
+  sentences: "句子",
+  dialog: "對話"
+};
 
-    function renderMainTabs() {
-      document.querySelectorAll(".tab").forEach(btn => {
-        btn.onclick = () => {
-          document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-          btn.classList.add("active");
-          const tab = btn.dataset.tab;
-          document.getElementById("previewPanel").classList.toggle("hidden", tab !== "preview");
-          document.getElementById("quizPanel").classList.toggle("hidden", tab !== "quiz");
-        };
-      });
-    }
+let previewCategory = "words";
+let quizCategory = "words";
 
-    function renderPreviewCategoryChips() {
-      const box = document.getElementById("previewCategoryChips");
-      box.innerHTML = "";
-      Object.keys(DATA).forEach(key => {
-        const btn = document.createElement("button");
-        btn.className = "chip" + (previewCategory === key ? " active" : "");
-        btn.textContent = categoryNames[key];
-        btn.onclick = () => {
-          previewCategory = key;
-          renderPreviewCategoryChips();
-          renderPreviewGrid();
-        };
-        box.appendChild(btn);
-      });
-    }
+function buildChips(containerId, activeKey, onClick) {
+  const box = document.getElementById(containerId);
+  box.innerHTML = "";
+  Object.keys(DATA).forEach(key => {
+    const b = document.createElement("button");
+    b.className = "chip" + (key === activeKey ? " active" : "");
+    b.textContent = CATEGORY_NAMES[key];
+    b.onclick = () => onClick(key);
+    box.appendChild(b);
+  });
+}
 
-    function renderPreviewGrid() {
-      const grid = document.getElementById("previewGrid");
-      grid.innerHTML = "";
+function renderPreview() {
+  const box = document.getElementById("previewBox");
+  box.innerHTML = "";
 
-      DATA[previewCategory].forEach(item => {
-        const card = document.createElement("div");
-        card.className = "card";
+  const list = DATA[previewCategory];
+  list.forEach(item => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <div class="jp">${item.j}</div>
+      <div class="zh">${item.z}</div>
+      <div class="kana">50音：${item.k}</div>
+    `;
+    box.appendChild(d);
+  });
+}
 
-        if (previewCategory === "dialog") {
-          card.innerHTML = `
-            <div class="jp">${item.j}</div>
-            <div class="zh">${item.z}</div>
-            <button class="speak">🔊 朗讀</button>
-          `;
-        } else {
-          card.innerHTML = `
-            <div class="jp">${item.j}</div>
-            <div class="zh">${item.z}</div>
-            ${item.r ? `<div class="sub">拼音：${item.r}</div>` : ""}
-            <button class="speak">🔊 朗讀</button>
-          `;
-        }
+function switchMainTab(e, tab) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  e.target.classList.add("active");
+  document.getElementById("previewPanel").classList.toggle("hidden", tab !== "preview");
+  document.getElementById("quizPanel").classList.toggle("hidden", tab !== "quiz");
+}
 
-        card.querySelector(".speak").onclick = () => speakJa(item.j);
-        grid.appendChild(card);
-      });
-    }
+function getQuizPool() {
+  return DATA[quizCategory];
+}
 
-    function renderQuizCategoryChips() {
-      const box = document.getElementById("quizCategoryChips");
-      box.innerHTML = "";
-      Object.keys(DATA).forEach(key => {
-        const btn = document.createElement("button");
-        btn.className = "chip" + (quizCategory === key ? " active" : "");
-        btn.textContent = categoryNames[key];
-        btn.onclick = () => {
-          quizCategory = key;
-          renderQuizCategoryChips();
-          document.getElementById("quizCategoryText").textContent = categoryNames[key];
-        };
-        box.appendChild(btn);
-      });
-    }
+let currentQuestion = null;
 
-    function renderQuizModeTabs() {
-      const box = document.getElementById("quizModeTabs");
-      box.innerHTML = "";
-      quizModes.forEach(mode => {
-        const btn = document.createElement("button");
-        btn.className = "mode-tab" + (quizMode === mode.key ? " active" : "");
-        btn.textContent = mode.label;
-        btn.onclick = () => {
-          quizMode = mode.key;
-          renderQuizModeTabs();
-          document.getElementById("quizModeText").textContent = mode.label;
-        };
-        box.appendChild(btn);
-      });
-    }
+function startQuiz() {
+  const pool = getQuizPool();
+  const item = pool[Math.floor(Math.random() * pool.length)];
+  currentQuestion = item;
 
-    function setQuizMessage(question, hint = "") {
-      document.getElementById("questionBox").textContent = question;
-      document.getElementById("hintBox").textContent = hint;
-      document.getElementById("optionsBox").innerHTML = "";
-      document.getElementById("resultBox").textContent = "";
-      document.getElementById("answerBox").style.display = "none";
-      document.getElementById("answerBox").innerHTML = "";
-      document.getElementById("nextBtn").style.display = "none";
-    }
+  const qbox = document.getElementById("qbox");
+  const opts = document.getElementById("opts");
+  const res = document.getElementById("res");
+  const meta = document.getElementById("quizMeta");
 
-    function getActiveMode() {
-      if (quizMode !== "mixed") return quizMode;
+  qbox.innerHTML = `<div class="jp">${item.j}</div>`;
+  opts.innerHTML = "";
+  res.innerHTML = "";
+  meta.innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
 
-      const choices = [];
+  const allPool = [...new Set(pool.map(x => x.z))];
+  const choices = [item.z];
+  while (choices.length < 4 && allPool.length >= 4) {
+    const r = allPool[Math.floor(Math.random() * allPool.length)];
+    if (!choices.includes(r)) choices.push(r);
+  }
 
-      if (["kana", "dakuon", "handakuon", "youon"].includes(quizCategory)) {
-        choices.push("kana_to_romaji", "jp_to_zh");
-      }
+  while (choices.length < 4) {
+    const fallback = ["不知道", "還沒整理", "再想想", "不確定"][choices.length - 1];
+    if (!choices.includes(fallback)) choices.push(fallback);
+  }
 
-      if (["words", "sentences", "dialog"].includes(quizCategory)) {
-        choices.push("jp_to_zh", "zh_to_jp");
-      }
+  choices.sort(() => Math.random() - 0.5);
 
-      if (["sentences", "dialog"].includes(quizCategory)) {
-        choices.push("fill_blank");
-      }
+  choices.forEach(choice => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.textContent = choice;
+    b.onclick = () => {
+      document.querySelectorAll(".option").forEach(btn => btn.disabled = true);
 
-      return choices[Math.floor(Math.random() * choices.length)] || "jp_to_zh";
-    }
-
-    function createFillBlankQuestion(pool) {
-      const candidates = pool.filter(item => item.j && item.j.length >= 4 && item.z);
-      if (candidates.length < 4) return null;
-
-      const item = candidates[Math.floor(Math.random() * candidates.length)];
-      const text = item.j;
-
-      let blankTarget = "";
-      const parts = text.split(/[\s　]/).filter(Boolean);
-
-      if (parts.length > 1) {
-        blankTarget = parts[Math.floor(Math.random() * parts.length)];
+      if (choice === item.z) {
+        b.classList.add("correct");
+        res.innerHTML = `⭕ 正確<br>50音：${item.k}`;
       } else {
-        const chunks = text.match(/[ぁ-んァ-ン一-龥ー]+/g) || [text];
-        blankTarget = chunks.sort((a, b) => b.length - a.length)[0];
+        b.classList.add("wrong");
+        res.innerHTML = `❌ 正解：${item.z}<br>50音：${item.k}`;
       }
-
-      if (!blankTarget || blankTarget.length < 2) {
-        blankTarget = text.slice(0, Math.min(4, text.length));
-      }
-
-      const questionText = text.replace(blankTarget, "（　　）");
-      const wrongChoices = shuffle(
-        [...new Set(candidates.map(x => {
-          const pieces = (x.j.match(/[ぁ-んァ-ン一-龥ー]+/g) || []);
-          return pieces.sort((a, b) => b.length - a.length)[0];
-        }).filter(Boolean))]
-      ).filter(x => x !== blankTarget).slice(0, 3);
-
-      if (wrongChoices.length < 3) return null;
-
-      return {
-        type: "fill_blank",
-        question: questionText,
-        correct: blankTarget,
-        options: shuffle([blankTarget, ...wrongChoices]),
-        source: item,
-        hint: "選出最適合填入空格的答案"
-      };
-    }
-
-    function startQuiz() {
-      const pool = DATA[quizCategory];
-
-      if (!pool || pool.length < 4) {
-        setQuizMessage("這個分類題目太少", "至少需要 4 題才能出選擇題");
-        return;
-      }
-
-      const activeMode = getActiveMode();
-
-      if (activeMode === "kana_to_romaji" && !["kana", "dakuon", "handakuon", "youon"].includes(quizCategory)) {
-        setQuizMessage("這個分類不能做拼音測驗", "請切換到 50音、濁音、半濁音或拗音");
-        return;
-      }
-
-      let questionData = null;
-
-      if (activeMode === "fill_blank") {
-        questionData = createFillBlankQuestion(pool);
-        if (!questionData) {
-          setQuizMessage("這個分類暫時不能做填空題", "請換句子或對話題庫");
-          return;
-        }
-      } else {
-        const item = pool[Math.floor(Math.random() * pool.length)];
-
-        let question = "";
-        let correct = "";
-        let field = "z";
-        let hint = "";
-
-        if (activeMode === "jp_to_zh") {
-          question = item.j;
-          correct = item.z;
-          field = "z";
-          hint = "選出正確中文";
-        } else if (activeMode === "zh_to_jp") {
-          question = item.z;
-          correct = item.j;
-          field = "j";
-          hint = "選出正確日文";
-        } else if (activeMode === "kana_to_romaji") {
-          question = item.j;
-          correct = item.r;
-          field = "r";
-          hint = "選出正確羅馬拼音";
-        }
-
-        const candidates = [...new Set(pool.map(x => x[field]).filter(Boolean))].filter(v => v !== correct);
-        const options = shuffle([correct, ...shuffle(candidates).slice(0, 3)]);
-
-        if (options.length < 4) {
-          setQuizMessage("這個分類選項不足", "目前還不能用這個模式測驗");
-          return;
-        }
-
-        questionData = {
-          type: activeMode,
-          question,
-          correct,
-          options,
-          source: item,
-          hint
-        };
-      }
-
-      currentQuestion = questionData;
-
-      document.getElementById("questionBox").innerHTML =
-        questionData.type === "fill_blank"
-          ? questionData.question.replace("（　　）", `<span class="fill-blank-word">（　　）</span>`)
-          : questionData.question;
-
-      document.getElementById("hintBox").textContent = questionData.hint;
-      document.getElementById("optionsBox").innerHTML = "";
-      document.getElementById("resultBox").textContent = "";
-      document.getElementById("answerBox").style.display = "none";
-      document.getElementById("answerBox").innerHTML = "";
-      document.getElementById("nextBtn").style.display = "none";
-
-      if (questionData.type === "jp_to_zh") {
-        speakJa(questionData.source.j);
-      }
-
-      questionData.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.className = "option";
-        btn.textContent = opt;
-
-        btn.onclick = () => {
-          total++;
-          document.querySelectorAll(".option").forEach(b => b.disabled = true);
-
-          if (opt === questionData.correct) {
-            score++;
-            btn.classList.add("correct");
-            document.getElementById("resultBox").textContent = "⭕ 答對了";
-          } else {
-            btn.classList.add("wrong");
-            document.getElementById("resultBox").textContent = "❌ 答錯了";
-            document.querySelectorAll(".option").forEach(b => {
-              if (b.textContent === questionData.correct) b.classList.add("correct");
-            });
-
-            wrongBook.unshift({
-              cat: categoryNames[quizCategory],
-              mode: document.getElementById("quizModeText").textContent,
-              j: questionData.source.j,
-              z: questionData.source.z,
-              r: questionData.source.r || ""
-            });
-            renderWrongBook();
-          }
-
-          let answerHtml = `
-            <b>日文：</b>${questionData.source.j}<br>
-            <b>中文：</b>${questionData.source.z}
-          `;
-          if (questionData.source.r) {
-            answerHtml += `<br><b>拼音：</b>${questionData.source.r}`;
-          }
-          if (questionData.type === "fill_blank") {
-            answerHtml += `<br><b>填空答案：</b>${questionData.correct}`;
-          }
-
-          document.getElementById("answerBox").style.display = "block";
-          document.getElementById("answerBox").innerHTML = answerHtml;
-          document.getElementById("nextBtn").style.display = "inline-block";
-          document.getElementById("scoreText").textContent = `${score} / ${total}`;
-        };
-
-        document.getElementById("optionsBox").appendChild(btn);
-      });
-
-      const modeLabel = quizModes.find(m => m.key === quizMode)?.label || quizMode;
-      document.getElementById("quizModeText").textContent =
-        quizMode === "mixed"
-          ? `混合測驗（本題：${modeLabelOf(activeMode)}）`
-          : modeLabelOf(activeMode);
-    }
-
-    function modeLabelOf(modeKey) {
-      const map = {
-        jp_to_zh: "日→中",
-        zh_to_jp: "中→日",
-        kana_to_romaji: "假名→拼音",
-        fill_blank: "句子填空",
-        mixed: "混合測驗"
-      };
-      return map[modeKey] || modeKey;
-    }
-
-    function renderWrongBook() {
-      const box = document.getElementById("wrongList");
-      if (!wrongBook.length) {
-        box.textContent = "目前沒有錯題";
-        return;
-      }
-
-      box.innerHTML = "";
-      wrongBook.slice(0, 20).forEach(i => {
-        const d = document.createElement("div");
-        d.className = "wrong-item";
-        d.innerHTML = `
-          <b>[${i.cat}]</b> ${i.mode ? `(${i.mode})` : ""}<br>
-          日文：${i.j}<br>
-          中文：${i.z}
-          ${i.r ? `<br>拼音：${i.r}` : ""}
-        `;
-        box.appendChild(d);
-      });
-    }
-
-    function resetQuiz() {
-      score = 0;
-      total = 0;
-      wrongBook = [];
-      currentQuestion = null;
-
-      document.getElementById("questionBox").textContent = "點擊「開始測驗」";
-      document.getElementById("hintBox").textContent = "";
-      document.getElementById("optionsBox").innerHTML = "";
-      document.getElementById("resultBox").textContent = "";
-      document.getElementById("answerBox").style.display = "none";
-      document.getElementById("answerBox").innerHTML = "";
-      document.getElementById("nextBtn").style.display = "none";
-      document.getElementById("scoreText").textContent = "0 / 0";
-      document.getElementById("quizModeText").textContent = modeLabelOf(quizMode);
-      renderWrongBook();
-    }
-
-    document.getElementById("startQuizBtn").onclick = startQuiz;
-    document.getElementById("nextBtn").onclick = startQuiz;
-    document.getElementById("speakBtn").onclick = () => {
-      if (!currentQuestion) return;
-      const t = currentQuestion.source?.j || currentQuestion.question;
-      speakJa(t);
     };
-    document.getElementById("resetBtn").onclick = resetQuiz;
+    opts.appendChild(b);
+  });
+}
 
-    renderMainTabs();
-    renderPreviewCategoryChips();
-    renderPreviewGrid();
-    renderQuizCategoryChips();
-    renderQuizModeTabs();
-    renderWrongBook();
-    document.getElementById("quizCategoryText").textContent = categoryNames[quizCategory];
-    document.getElementById("quizModeText").textContent = modeLabelOf(quizMode);
-  </script>
+buildChips("previewChips", previewCategory, key => {
+  previewCategory = key;
+  buildChips("previewChips", previewCategory, arguments.callee);
+  renderPreview();
+});
+
+buildChips("quizChips", quizCategory, key => {
+  quizCategory = key;
+  buildChips("quizChips", quizCategory, arguments.callee);
+  document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
+});
+
+renderPreview();
+document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
+</script>
+
 </body>
 </html>
