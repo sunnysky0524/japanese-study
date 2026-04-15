@@ -3,133 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sunny 日文學習神器</title>
+<title>Sunny 日文課本完整版</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: sans-serif;
-    background: #fff4f8;
-    color: #4a3b44;
-  }
-  .header {
-    background: #ff6fa5;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    font-weight: bold;
-    font-size: 20px;
-  }
-  .tabs {
-    display: flex;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #fff4f8;
-  }
-  .tab {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    background: #ffd6e8;
-    font-weight: bold;
-  }
-  .tab.active {
-    background: #ff6fa5;
-    color: white;
-  }
+  body { margin: 0; font-family: sans-serif; background: #fff4f8; color: #4a3b44; }
+  .header { background: #ff6fa5; color: white; text-align: center; padding: 15px; font-weight: bold; font-size: 18px; }
+  .tabs { display: flex; position: sticky; top: 0; z-index: 10; }
+  .tab { flex: 1; padding: 12px; border: none; background: #ffd6e8; font-weight: bold; }
+  .tab.active { background: #ff6fa5; color: white; }
   .panel { padding: 15px; }
   .hidden { display: none; }
 
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .chip {
-    border: none;
-    border-radius: 999px;
-    padding: 8px 12px;
-    background: #ffe4ef;
-    color: #c63f7d;
-    font-weight: bold;
-  }
-  .chip.active {
-    background: #ff6fa5;
-    color: white;
-  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip { padding: 7px 11px; border-radius: 20px; background: #ffe0ec; border: none; }
+  .chip.active { background: #ff6fa5; color: white; }
 
-  .section-title {
-    font-weight: bold;
-    color: #ff4f95;
-    margin: 16px 0 10px;
-    font-size: 18px;
-  }
+  .card { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .jp { font-size: 18px; font-weight: bold; line-height: 1.7; }
+  .zh { color: #ff4f95; line-height: 1.7; margin-top: 4px; }
+  .kana { font-size: 13px; color: #888; line-height: 1.7; margin-top: 4px; }
+  .section-title { font-weight: bold; color: #ff4f95; margin: 16px 0 10px; font-size: 18px; }
 
-  .card {
-    background: white;
-    border-radius: 14px;
-    padding: 12px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  .jp {
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1.7;
-  }
-  .zh {
-    color: #ff4f95;
-    line-height: 1.7;
-    margin-top: 4px;
-  }
-  .kana {
-    font-size: 13px;
-    color: #888;
-    line-height: 1.7;
-    margin-top: 4px;
-  }
-
-  .option {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid pink;
-    background: white;
-    font-size: 15px;
-  }
+  .option { display: block; width: 100%; margin-top: 10px; padding: 12px; border-radius: 10px; border: 1px solid pink; background: white; }
   .correct { background: #d4ffd4; }
   .wrong { background: #ffd4d4; }
 
-  .btn {
-    margin-top: 10px;
-    padding: 12px;
-    width: 100%;
-    background: #ff6fa5;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: bold;
-  }
-
-  .meta {
-    font-size: 14px;
-    color: #777;
-    margin-bottom: 10px;
-    line-height: 1.7;
-  }
+  .btn { margin-top: 10px; padding: 12px; width: 100%; background: #ff6fa5; color: white; border: none; border-radius: 10px; font-weight: bold; }
+  .meta { color: #777; font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
-<div class="header">🌸 Sunny 日文學習神器</div>
+<div class="header">🌸 Sunny 日文課本完整版</div>
 
 <div class="tabs">
-  <button class="tab active" onclick="switchMainTab(event, 'preview')">📖 預覽</button>
-  <button class="tab" onclick="switchMainTab(event, 'quiz')">📝 測驗</button>
+  <button class="tab active" onclick="switchMainTab(event,'preview')">📖 預覽</button>
+  <button class="tab" onclick="switchMainTab(event,'quiz')">📝 測驗</button>
 </div>
 
 <div id="previewPanel" class="panel">
@@ -453,6 +362,22 @@ function buildChips(containerId, activeKey, onClick) {
   });
 }
 
+function renderPreviewChips() {
+  buildChips("previewChips", previewCategory, (key) => {
+    previewCategory = key;
+    renderPreviewChips();
+    renderPreview();
+  });
+}
+
+function renderQuizChips() {
+  buildChips("quizChips", quizCategory, (key) => {
+    quizCategory = key;
+    renderQuizChips();
+    document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
+  });
+}
+
 function renderPreview() {
   const box = document.getElementById("previewBox");
   box.innerHTML = "";
@@ -464,27 +389,16 @@ function renderPreview() {
     d.innerHTML = `
       <div class="jp">${item.j}</div>
       <div class="zh">${item.z}</div>
-      <div class="kana">50音：${item.k}</div>
+      ${item.k ? `<div class="kana">50音：${item.k}</div>` : ""}
     `;
     box.appendChild(d);
   });
 }
 
-function switchMainTab(e, tab) {
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-  e.target.classList.add("active");
-  document.getElementById("previewPanel").classList.toggle("hidden", tab !== "preview");
-  document.getElementById("quizPanel").classList.toggle("hidden", tab !== "quiz");
-}
-
-function getQuizPool() {
-  return DATA[quizCategory];
-}
-
 let currentQuestion = null;
 
 function startQuiz() {
-  const pool = getQuizPool();
+  const pool = DATA[quizCategory];
   const item = pool[Math.floor(Math.random() * pool.length)];
   currentQuestion = item;
 
@@ -500,6 +414,7 @@ function startQuiz() {
 
   const allPool = [...new Set(pool.map(x => x.z))];
   const choices = [item.z];
+
   while (choices.length < 4 && allPool.length >= 4) {
     const r = allPool[Math.floor(Math.random() * allPool.length)];
     if (!choices.includes(r)) choices.push(r);
@@ -521,28 +436,25 @@ function startQuiz() {
 
       if (choice === item.z) {
         b.classList.add("correct");
-        res.innerHTML = `⭕ 正確<br>50音：${item.k}`;
+        res.innerHTML = `⭕ 正確<br>${item.k ? "50音：" + item.k : ""}`;
       } else {
         b.classList.add("wrong");
-        res.innerHTML = `❌ 正解：${item.z}<br>50音：${item.k}`;
+        res.innerHTML = `❌ 正解：${item.z}<br>${item.k ? "50音：" + item.k : ""}`;
       }
     };
     opts.appendChild(b);
   });
 }
 
-buildChips("previewChips", previewCategory, key => {
-  previewCategory = key;
-  buildChips("previewChips", previewCategory, arguments.callee);
-  renderPreview();
-});
+function switchMainTab(e, tab) {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  e.target.classList.add("active");
+  document.getElementById("previewPanel").classList.toggle("hidden", tab !== "preview");
+  document.getElementById("quizPanel").classList.toggle("hidden", tab !== "quiz");
+}
 
-buildChips("quizChips", quizCategory, key => {
-  quizCategory = key;
-  buildChips("quizChips", quizCategory, arguments.callee);
-  document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
-});
-
+renderPreviewChips();
+renderQuizChips();
 renderPreview();
 document.getElementById("quizMeta").innerHTML = `目前題庫：${CATEGORY_NAMES[quizCategory]}`;
 </script>
