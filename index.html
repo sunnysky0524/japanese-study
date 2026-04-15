@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sunny 的日語終極攻略</title>
+    <title>Sunny 日語課本終極版</title>
     <style>
         body { font-family: sans-serif; background: #fff5f7; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; color: #333; }
         .header { background: #d63384; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1rem; }
@@ -12,7 +12,7 @@
         .tab.active { background: #d63384; color: white; }
         .content { flex: 1; overflow-y: auto; padding: 15px; display: none; }
         .content.active { display: block; }
-        .section-title { font-weight: bold; color: #d63384; margin: 15px 0 8px 0; border-left: 5px solid #d63384; padding-left: 10px; font-size: 1rem; background: #fff0f3; padding-top: 5px; padding-bottom: 5px; }
+        .section-title { font-weight: bold; color: #d63384; margin: 15px 0 8px 0; border-left: 5px solid #d63384; padding-left: 10px; font-size: 0.95rem; background: #fff0f3; padding-top: 5px; padding-bottom: 5px; }
         .list-card { background: white; border-radius: 10px; padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .jp-text { font-size: 1.1rem; font-weight: bold; color: #333; }
         .zh-text { color: #d63384; font-weight: 500; font-size: 0.85rem; text-align: right; max-width: 60%; }
@@ -23,12 +23,12 @@
     </style>
 </head>
 <body>
-    <div class="header">日語 50 音與課文全攻略</div>
+    <div class="header">日語 8-13 課全課文複習</div>
     <div class="tabs">
         <div id="t-kana" class="tab active" onclick="sw('kana')">50音</div>
-        <div id="t-word" class="tab" onclick="sw('word')">單字</div>
-        <div id="t-sent" class="tab" onclick="sw('sent')">句子</div>
-        <div id="t-quiz" class="tab" onclick="sw('quiz')">測驗</div>
+        <div id="t-word" class="tab" onclick="sw('word')">課本單字</div>
+        <div id="t-sent" class="tab" onclick="sw('sent')">生活句子</div>
+        <div id="t-quiz" class="tab" onclick="sw('quiz')">綜合測驗</div>
     </div>
     
     <div id="c-kana" class="content active"></div>
@@ -45,19 +45,20 @@
 
     <script>
         const kanaData = [
-            {t:"清音", items:[{j:"あ",z:"a"},{j:"い",z:"i"},{j:"う",z:"u"},{j:"え",z:"e"},{j:"お",z:"o"},{j:"か",z:"ka"},{j:"き",z:"ki"},{j:"く",z:"ku"},{j:"け",z:"ke"},{j:"こ",z:"ko"},{j:"さ",z:"sa"},{j:"し",z:"shi"},{j:"す",z:"su"},{j:"せ",z:"se"},{j:"そ",z:"so"},{j:"た",z:"ta"},{j:"ち",z:"chi"},{j:"つ",z:"tsu"},{j:"て",z:"te"},{j:"と",z:"to"},{j:"な",z:"na"},{j:"に",z:"ni"},{j:"ぬ",z:"nu"},{j:"ね",z:"ne"},{j:"の",z:"no"},{j:"は",z:"ha"},{j:"ひ",z:"hi"},{j:"ふ",z:"fu"},{j:"へ",z:"he"},{j:"ほ",z:"ho"},{j:"ま",z:"ma"},{j:"み",z:"mi"},{j:"む",z:"mu"},{j:"め",z:"me"},{j:"も",z:"mo"},{j:"や",z:"ya"},{j:"ゆ",z:"yu"},{j:"よ",z:"yo"},{j:"ら",z:"ra"},{j:"り",z:"ri"},{j:"る",z:"ru"},{j:"れ",z:"re"},{j:"ろ",z:"ro"},{j:"わ",z:"wa"},{j:"を",z:"wo"},{j:"ん",z:"n"}]},
-            {t:"濁音/半濁音", items:[{j:"が",z:"ga"},{j:"ぎ",z:"gi"},{j:"ぐ",z:"gu"},{j:"げ",z:"ge"},{j:"ご",z:"go"},{j:"ざ",z:"za"},{j:"じ",z:"ji"},{j:"ず",z:"zu"},{j:"ぜ",z:"ze"},{j:"ぞ",z:"zo"},{j:"だ",z:"da"},{j:"ぢ",z:"ji"},{j:"づ",z:"zu"},{j:"で",z:"de"},{j:"ど",z:"do"},{j:"ば",z:"ba"},{j:"び",z:"bi"},{j:"ぶ",z:"bu"},{j:"べ",z:"be"},{j:"ぼ",z:"bo"},{j:"ぱ",z:"pa"},{j:"ぴ",z:"pi"},{j:"ぷ",z:"pu"},{j:"ぺ",z:"pe"},{j:"ぽ",z:"po"}]},
-            {t:"拗音 (例)", items:[{j:"きゃ",z:"kya"},{j:"きゅ",z:"kyu"},{j:"きょ",z:"kyo"},{j:"しゃ",z:"sha"},{j:"しゅ",z:"shu"},{j:"しょ",z:"sho"},{j:"ちゃ",z:"cha"},{j:"ちゅ",z:"chu"},{j:"ちょ",z:"cho"},{j:"にゃ",z:"nya"},{j:"ひゃ",z:"hya"},{j:"みゃ",z:"mya"},{j:"りゃ",z:"rya"}]}
+            {t:"基礎清音", items:[{j:"あ",z:"a"},{j:"い",z:"i"},{j:"う",z:"u"},{j:"え",z:"e"},{j:"お",z:"o"},{j:"か",z:"ka"},{j:"き",z:"ki"},{j:"く",z:"ku"},{j:"け",z:"ke"},{j:"こ",z:"ko"},{j:"さ",z:"sa"},{j:"し",z:"shi"},{j:"す",z:"su"},{j:"せ",z:"se"},{j:"そ",z:"so"},{j:"た",z:"ta"},{j:"ち",z:"chi"},{j:"つ",z:"tsu"},{j:"て",z:"te"},{j:"と",z:"to"},{j:"な",z:"na"},{j:"に",z:"ni"},{j:"ぬ",z:"nu"},{j:"ね",z:"ne"},{j:"の",z:"no"},{j:"は",z:"ha"},{j:"ひ",z:"hi"},{j:"ふ",z:"fu"},{j:"へ",z:"he"},{j:"ほ",z:"ho"},{j:"ま",z:"ma"},{j:"み",z:"mi"},{j:"む",z:"mu"},{j:"め",z:"me"},{j:"も",z:"mo"},{j:"や",z:"ya"},{j:"ゆ",z:"yu"},{j:"よ",z:"yo"},{j:"ら",z:"ra"},{j:"り",z:"ri"},{j:"る",z:"ru"},{j:"れ",z:"re"},{j:"ろ",z:"ro"},{j:"わ",z:"wa"},{j:"を",z:"wo"},{j:"ん",z:"n"}]},
+            {t:"濁音與半濁音", items:[{j:"が",z:"ga"},{j:"ぎ",z:"gi"},{j:"ぐ",z:"gu"},{j:"げ",z:"ge"},{j:"ご",z:"go"},{j:"ざ",z:"za"},{j:"じ",z:"ji"},{j:"ず",z:"zu"},{j:"ぜ",z:"ze"},{j:"ぞ",z:"zo"},{j:"だ",z:"da"},{j:"ぢ",z:"ji"},{j:"づ",z:"zu"},{j:"で",z:"de"},{j:"ど",z:"do"},{j:"ば",z:"ba"},{j:"び",z:"bi"},{j:"ぶ",z:"bu"},{j:"べ",z:"be"},{j:"ぼ",z:"bo"},{j:"ぱ",z:"pa"},{j:"ぴ",z:"pi"},{j:"ぷ",z:"pu"},{j:"ぺ",z:"pe"},{j:"ぽ",z:"po"}]},
+            {t:"拗音練習", items:[{j:"きゃ",z:"kya"},{j:"きゅ",z:"kyu"},{j:"きょ",z:"kyo"},{j:"しゃ",z:"sha"},{j:"しゅ",z:"shu"},{j:"しょ",z:"sho"},{j:"ちゃ",z:"cha"},{j:"ちゅ",z:"chu"},{j:"ちょ",z:"cho"},{j:"にゃ",z:"nya"},{j:"ひゃ",z:"hya"},{j:"びゃ",z:"bya"},{j:"ぴゃ",z:"pya"},{j:"みゃ",z:"mya"},{j:"りゃ",z:"rya"}]}
         ];
 
         const wordData = [
-            {t:"50音代表單字", items:[{j:"いえ",z:"家"},{j:"えき",z:"車站"},{j:"かき",z:"柿子"},{j:"あき",z:"秋天"},{j:"いけ",z:"池塘"},{j:"こい",z:"鯉魚"},{j:"いぬ",z:"狗"},{j:"ねco",z:"貓"},{j:"はな",z:"花"}]},
-            {t:"第8-10課 (外來語)", items:[{j:"スマホ",z:"手機"},{j:"タクシー",z:"計程車"},{j:"デパート",z:"百貨公司"},{j:"トイレ",z:"洗手間"},{j:"アイスクリーム",z:"冰淇淋"},{j:"ケーキ",z:"蛋糕"},{j:"コーヒー",z:"咖啡"},{j:"コンビニ",z:"便利商店"},{j:"カメラ",z:"相機"}]},
-            {t:"第11-13課 (發音/地名)", items:[{j:"しんぶん",z:"報紙"},{j:"ぎんこう",z:"銀行"},{j:"おんせん",z:"溫泉"},{j:"がくせい",z:"學生"},{j:"せんせい",z:"老師"},{j:"がっこう",z:"學校 (促音)"},{j:"きって",z:"郵票 (促音)"},{j:"きっぷ",z:"車票 (促音)"},{j:"台湾",z:"台灣"},{j:"ニューヨーク",z:"紐約"}]}
+            {t:"課本重要單字 (8-10課)", items:[{j:"スマホ",z:"手機"},{j:"タクシー",z:"計程車"},{j:"デパート",z:"百貨公司"},{j:"トイレ",z:"洗手間"},{j:"アイスクリーム",z:"冰淇淋"},{j:"ケーキ",z:"蛋糕"},{j:"咖啡",z:"コーヒー"},{j:"コンビニ",z:"便利商店"},{j:"レストラン",z:"餐廳"},{j:"パン",z:"麵包"},{j:"ノート",z:"筆記本"}]},
+            {t:"課本重要單字 (11-13課)", items:[{j:"がくせい",z:"學生"},{j:"せんせい",z:"老師"},{j:"かいしゃいん",z:"上班族"},{j:"エンジニア",z:"工程師"},{j:"ぎんこう",z:"銀行"},{j:"びょういん",z:"醫院"},{j:"としょかん",z:"圖書館"},{j:"がっこう",z:"學校"},{j:"きって",z:"郵票"},{j:"きっぷ",z:"車票"},{j:"スーパー",z:"超市"}]},
+            {t:"國籍與地名", items:[{j:"日本人",z:"日本人"},{j:"台湾人",z:"台灣人"},{j:"アメリカ人",z:"美國人"},{j:"ニューヨーク",z:"紐約"},{j:"ロンドン",z:"倫敦"},{j:"バンコク",z:"曼谷"},{j:"ソウル",z:"首爾"},{j:"東京",z:"東京"},{j:"大阪",z:"大阪"}]}
         ];
 
         const sentData = [
-            {t:"常用對話", items:[{j:"はじめまして、ダイアナです。",z:"初次見面，我是戴安娜。"},{j:"どうぞ よろしくお願いします。",z:"請多指教。"},{j:"すみません。これをください。",z:"對不起，請給我這個。"},{j:"いくらですか。",z:"多少錢呢？"},{j:"全部で いくらですか。",z:"總共多少錢呢？"},{j:"かしこまりました。",z:"我知道了/遵命。"}]}
+            {t:"自我介紹與禮貌", items:[{j:"はじめまして。",z:"初次見面。"},{j:"～から 来ました。",z:"從～地方來的。"},{j:"どうぞ よろしくお願いします。",z:"請多指教。"},{j:"ありがとうございました。",z:"非常感謝。"}]},
+            {t:"購物與詢問", items:[{j:"いくらですか。",z:"多少錢呢？"},{j:"全部で いくらですか。",z:"總共多少錢呢？"},{j:"これを ください。",z:"請給我這個。"},{j:"かしこまりました。",z:"我知道了。"},{j:"少々お待ちください。",z:"請稍等一下。"}]}
         ];
 
         let quizPool = [];
